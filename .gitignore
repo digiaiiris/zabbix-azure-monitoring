@@ -1,0 +1,7 @@
+*.pyc
+*.egg-info
+.coverage
+.vscode
+checkstyle
+dist
+htmlcov
