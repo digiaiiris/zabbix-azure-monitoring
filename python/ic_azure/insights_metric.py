@@ -17,7 +17,7 @@ class InsightsMetric(object):
 
     # Method to retrieve metrics from Microsoft Insight resources
     def get_metric(self, resource_group, resource_name, interval, metric,
-                   statistic, timeshift):
+                   statistic, timegrain, timeshift):
 
         # Declare variables
         ret_val = -1
@@ -34,16 +34,6 @@ class InsightsMetric(object):
         resource_id += "/providers/microsoft.insights/components/{}".format(
             resource_name
         )
-
-        # Get timegrain based on interval
-        # Possible values: None, PT1M, PT1H, P1D
-        quotient, remainder = divmod(interval, 60)
-        if quotient <= 1:
-            timegrain = 'PT1M'
-        elif quotient <= 60:
-            timegrain = 'PT1H'
-        else:
-            timegrain = 'P1D'
 
         # Retrieve metric data
         metrics_data = self._client.metrics.list(
@@ -80,6 +70,8 @@ def main(args=None):
     parser.add_argument("interval", type=int, help="Statistic interval")
     parser.add_argument("statistic", help="Statistic to retrieve. e.g. " +
                         "None, Average, Count, Minimum, Maximum, Total")
+    parser.add_argument("timegrain", help="Timegrain for metric. e.g. " +
+                        "None, PT1M, PT1H, P1D")
 
     args = parser.parse_args(args)
 
@@ -95,6 +87,7 @@ def main(args=None):
         args.interval,
         args.metric,
         args.statistic,
+        args.timegrain,
         args.timeshift
     )
 

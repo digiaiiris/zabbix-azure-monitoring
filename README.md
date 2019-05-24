@@ -37,4 +37,4 @@ azure.insights.discover_insights[configuration_file, resource_group, resource] |
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.insights.metric.timeshift[configuration_file, resource_group, resource, metric_category/metric_name, interval, statistic, timeshift]' | Retrieve metric from Application Insights resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.insights.metric.timeshift[configuration_file, resource_group, resource, metric_category/metric_name, interval, statistic, timegrain, timeshift]' | Retrieve metric from Application Insights resources | Count, Percent, Milliseconds, Seconds, etc.

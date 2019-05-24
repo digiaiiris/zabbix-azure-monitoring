@@ -46,13 +46,18 @@ class AzureClient(object):
             config["tenant_id"]
         ))
 
+        # Check if PEM-file exists
+        if not os.path.exists(config["pemfile"]):
+            raise Exception("PEM-file not found: {}".format(config["pemfile"]))
+
         # Read PEM-file
         try:
             with open(config["pemfile"], "r") as file:
                 config["key"] = file.read()
         except IOError:
-            print("I/O error while reading PEM-file.")
-            return
+            raise Exception("I/O error while reading PEM-file: {}".format(
+                config["pemfile"]
+            ))
 
         # Acquire token with client certificate
         management_token = context.acquire_token_with_client_certificate(
