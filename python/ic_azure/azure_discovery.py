@@ -30,8 +30,6 @@ class AzureDiscovery(object):
             resource_name
         )
 
-        print resource_id
-
         # List metrics from resource
         for metric in self._client.metric_definitions.list(resource_id):
             servicesList.append(metric.name.value)
