@@ -22,7 +22,7 @@ class AzureMetric(object):
 
         # Declare variables
         interval = -1
-        ret_val = -1
+        ret_val = None
 
         # Retrieve interval and timeunit
         result = re.search(r"^PT?([\d]+)([DHM])$", timegrain)
@@ -97,7 +97,7 @@ def main(args=None):
                         help="Time shift for interval")
     parser.add_argument("metric", help="Metric to obtain")
     parser.add_argument("statistic", help="Statistic to retrieve. e.g. " +
-                        "None, Average, Count, Minimum, Maximum, Total")
+                        "Average, Count, Minimum, Maximum, Total")
     parser.add_argument("timegrain", help="Timegrain for metric. e.g. " +
                         "PT1M, PT1H, P1D")
 
@@ -122,8 +122,6 @@ def main(args=None):
 
     # Do not print value if it is below zero
     if not value:
-        print("")
-    elif value == -1:
         print("")
     else:
         print(value)
