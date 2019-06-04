@@ -16,7 +16,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.0.0/azure-monitoring-1.0.0.tar.gz
+pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.1.0/azure-monitoring-1.1.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -30,11 +30,11 @@ pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/downl
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.insights.discover_insights[configuration_file, resource_group, resource] | Discover metrics in Application Insights resources | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+azure.discover[configuration_file, resource_group, provider_name, resource_type, resource] | Discover metrics from Azure resources | {#METRIC_CATEGORY}, {#METRIC_NAME} |
 
 
-### Insights Metrics
+### Azure Metrics
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.insights.metric.timeshift[configuration_file, resource_group, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metric from Application Insights resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.timeshift[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metric from Azure resources | Count, Percent, Milliseconds, Seconds, etc.

@@ -8,14 +8,15 @@ from argparse import ArgumentParser
 from azure_client import AzureClient
 
 
-class InsightsDiscovery(object):
-    """Discover available metrics from Azure's Insights components."""
+class AzureDiscovery(object):
+    """Discover available metrics from Azure's components."""
 
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
 
-    def find_services(self, resource_group, resource_name):
+    def find_services(self, resource_group, provider_name, resource_type,
+                      resource_name):
         servicesList = []
 
         # Create resource ID
@@ -23,9 +24,13 @@ class InsightsDiscovery(object):
             self.subscription_id,
             resource_group
         )
-        resource_id += "/providers/microsoft.insights/components/{}".format(
+        resource_id += "/providers/{}/{}/{}".format(
+            provider_name,
+            resource_type,
             resource_name
         )
+
+        print resource_id
 
         # List metrics from resource
         for metric in self._client.metric_definitions.list(resource_id):
@@ -35,25 +40,31 @@ class InsightsDiscovery(object):
 
 
 def main(args=None):
-    parser = ArgumentParser(description="Discover Microsoft Insights services")
+    parser = ArgumentParser(description="Discover Microsoft services")
 
     parser.add_argument("-c", "--config", help="Path to configuration file.")
     parser.add_argument("-g", "--resource-group", dest="resource_group",
-                        help="Insights resource group")
+                        help="ResourceGroup for resource.")
+    parser.add_argument("-p", "--provider-name", dest="provider_name",
+                        help="Company.ProviderName for resource.")
+    parser.add_argument("-t", "--resource-type", dest="resource_type",
+                        help="ResourceType for resource.")
     parser.add_argument("-r", "--resource-name", dest="resource_name",
-                        help="Insights resource name")
+                        help="ResourceName for resource.")
 
     args = parser.parse_args(args)
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
 
-    # Instantiate Insights discovery
-    client = InsightsDiscovery(azure_client)
+    # Instantiate discovery
+    client = AzureDiscovery(azure_client)
 
     # Find metric services using discovery
     servicesList = client.find_services(
         args.resource_group,
+        args.provider_name,
+        args.resource_type,
         args.resource_name
     )
 
