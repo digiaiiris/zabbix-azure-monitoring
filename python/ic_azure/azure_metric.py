@@ -9,20 +9,20 @@ import re
 from azure_client import AzureClient
 
 
-class InsightsMetric(object):
-    """Retrieve metric data from Azure's Microsoft Insights components."""
+class AzureMetric(object):
+    """Retrieve metric data from Azure's components."""
 
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
 
-    # Method to retrieve metrics from Microsoft Insight resources
-    def get_metric(self, resource_group, resource_name, metric, statistic,
-                   timegrain, timeshift):
+    # Method to retrieve metrics from Azure resources
+    def get_metric(self, resource_group, provider_name, resource_type,
+                   resource_name, metric, statistic, timegrain, timeshift):
 
         # Declare variables
         interval = -1
-        ret_val = -1
+        ret_val = None
 
         # Retrieve interval and timeunit
         result = re.search(r"^PT?([\d]+)([DHM])$", timegrain)
@@ -54,7 +54,9 @@ class InsightsMetric(object):
             self.subscription_id,
             resource_group
         )
-        resource_id += "/providers/microsoft.insights/components/{}".format(
+        resource_id += "/providers/{}/{}/{}".format(
+            provider_name,
+            resource_type,
             resource_name
         )
 
@@ -80,18 +82,22 @@ class InsightsMetric(object):
 
 
 def main(args=None):
-    parser = ArgumentParser(description="Retrieve Azure Insights metrics")
+    parser = ArgumentParser(description="Retrieve Azure metrics")
 
     parser.add_argument("-c", "--config", help="Path to configuration file.")
     parser.add_argument("-g", "--resource-group", dest="resource_group",
-                        help="Insights resource group")
+                        help="ResourceGroup for resource.")
+    parser.add_argument("-p", "--provider-name", dest="provider_name",
+                        help="Company.ProviderName for resource.")
+    parser.add_argument("-t", "--resource-type", dest="resource_type",
+                        help="ResourceType for resource.")
     parser.add_argument("-r", "--resource-name", dest="resource_name",
-                        help="Insights resource name")
+                        help="ResourceName for resource.")
     parser.add_argument("--timeshift", type=int, default=0,
                         help="Time shift for interval")
     parser.add_argument("metric", help="Metric to obtain")
     parser.add_argument("statistic", help="Statistic to retrieve. e.g. " +
-                        "None, Average, Count, Minimum, Maximum, Total")
+                        "Average, Count, Minimum, Maximum, Total")
     parser.add_argument("timegrain", help="Timegrain for metric. e.g. " +
                         "PT1M, PT1H, P1D")
 
@@ -100,11 +106,13 @@ def main(args=None):
     # Instantiate Azure client
     azure_client = AzureClient(args)
 
-    # Instantiate Insights metrics
-    client = InsightsMetric(azure_client)
+    # Instantiate Azure metrics
+    client = AzureMetric(azure_client)
 
     value = client.get_metric(
         args.resource_group,
+        args.provider_name,
+        args.resource_type,
         args.resource_name,
         args.metric,
         args.statistic,
@@ -113,7 +121,7 @@ def main(args=None):
     )
 
     # Do not print value if it is below zero
-    if value == -1:
+    if not value:
         print("")
     else:
         print(value)
