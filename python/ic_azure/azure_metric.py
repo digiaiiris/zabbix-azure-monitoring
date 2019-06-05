@@ -120,9 +120,9 @@ def main(args=None):
         args.timeshift
     )
 
-    # Do not print value if it is below zero
+    # If value was None, print zero. Otherwise print retrieved value.
     if not value:
-        print("")
+        print(0)
     else:
         print(value)
 
