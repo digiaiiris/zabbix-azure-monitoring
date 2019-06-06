@@ -22,7 +22,7 @@ class AzureMetric(object):
 
         # Declare variables
         interval = -1
-        ret_val = None
+        ret_val = -1
 
         # Retrieve interval and timeunit
         result = re.search(r"^PT?([\d]+)([DHM])$", timegrain)
@@ -76,7 +76,7 @@ class AzureMetric(object):
         for item in metrics_data.value:
             for timeserie in item.timeseries:
                 for data in timeserie.data:
-                    ret_val = data.total
+                    ret_val = data.__dict__.get(statistic.lower())
 
         return ret_val
 
@@ -120,8 +120,10 @@ def main(args=None):
         args.timeshift
     )
 
-    # Do not print value if it is below zero
+    # If value was None, print zero. Otherwise print retrieved value.
     if not value:
+        print(0)
+    elif value == -1:
         print("")
     else:
         print(value)
