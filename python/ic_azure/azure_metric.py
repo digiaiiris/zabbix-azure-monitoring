@@ -10,13 +10,13 @@ from azure_client import AzureClient
 
 
 class AzureMetric(object):
-    """Retrieve metric data from Azure's components."""
+    """Retrieve metrics from Azure's resources"""
 
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
 
-    # Method to retrieve metrics from Azure resources
+    # Method to retrieve metrics from Azure's resources
     def get_metric(self, resource_group, provider_name, resource_type,
                    resource_name, metric, statistic, timegrain, timeshift):
 
@@ -82,7 +82,9 @@ class AzureMetric(object):
 
 
 def main(args=None):
-    parser = ArgumentParser(description="Retrieve Azure metrics")
+    parser = ArgumentParser(
+        description="Retrieve metrics from Azure's resources"
+    )
 
     parser.add_argument("-c", "--config", help="Path to configuration file.")
     parser.add_argument("-g", "--resource-group", dest="resource_group",

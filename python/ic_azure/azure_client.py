@@ -9,6 +9,7 @@ import os
 # Azure imports
 import adal
 from azure.mgmt.monitor import MonitorManagementClient
+from azure.mgmt.resource import ResourceManagementClient
 from msrestazure.azure_active_directory import AADTokenCredentials
 from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
@@ -18,8 +19,6 @@ class AzureClient(object):
 
     def __init__(self, args):
         """Initializes connection to Azure service."""
-
-        self._client = None
 
         # Check if configuration file exists
         if not os.path.exists(args.config):
@@ -68,19 +67,36 @@ class AzureClient(object):
         )
 
         # Create credentials object
-        credentials = AADTokenCredentials(
+        self.credentials = AADTokenCredentials(
             management_token,
             config["application_id"]
         )
 
-        # Instantiate monitoring client
+    def client(self):
+        """Initializes new monitoring client for Azure services."""
+
+        self._client = None
+
+        # Instantiate new monitoring client
         self._client = MonitorManagementClient(
-            credentials,
-            config["subscription_id"]
+            self.credentials,
+            self.subscription_id
         )
 
-    def client(self):
         return self._client
+
+    def resource_client(self):
+        """Initializes new resource client for Azure services."""
+
+        self._resource_client = None
+
+        # Instantiate new resource client
+        self._resource_client = ResourceManagementClient(
+            self.credentials,
+            self.subscription_id
+        )
+
+        return self._resource_client
 
 
 if __name__ == "__main__":

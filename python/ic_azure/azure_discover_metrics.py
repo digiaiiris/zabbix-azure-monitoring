@@ -9,7 +9,7 @@ from azure_client import AzureClient
 
 
 class AzureDiscovery(object):
-    """Discover available metrics from Azure's components."""
+    """Discover metrics from Azure's resources."""
 
     def __init__(self, azure_client):
         self._client = azure_client.client()
@@ -38,7 +38,9 @@ class AzureDiscovery(object):
 
 
 def main(args=None):
-    parser = ArgumentParser(description="Discover Microsoft services")
+    parser = ArgumentParser(
+        description="Discover metrics from Azure's resources."
+    )
 
     parser.add_argument("-c", "--config", help="Path to configuration file.")
     parser.add_argument("-g", "--resource-group", dest="resource_group",
