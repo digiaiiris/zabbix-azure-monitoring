@@ -20,7 +20,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.1.1/azure-monitoring-1.1.1.tar.gz
+pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.2.0/azure-monitoring-1.2.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -32,24 +32,32 @@ pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/downl
 
 ## Usage
 
-### Discovery
+### Resource discovery
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.discover[configuration_file, resource_group, provider_name, resource_type, resource] | Discover metrics from Azure resources | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+azure.discover.resources[configuration_file] | Discover resources from Azure's services | {#RESOURCE_GROUP}, {#COMPANY_PROVIDER_NAME}, {#RESOURCE_TYPE}, {#RESOURCE_NAME} |
 
 
 
-### Azure Metrics
+### Metric discovery
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.metric.timeshift[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metric from Azure resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.discover.metrics[configuration_file, resource_group, provider_name, resource_type, resource] | Discover metrics from Azure's resources | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+
+
+
+### Azure metrics
+
+Item Syntax | Description | Units |
+----------- | ----------- | ----- |
+azure.metric.timeshift[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
 
 
 
 
-## Retrieving available resources
+## Retrieving available resources using the Azure CLI
 
 Available resources can be retrieved using the Azure CLI application.
 
@@ -97,14 +105,21 @@ openssl x509 -in <path_to_pem_file> -fingerprint -noout
 
 
 
+### List available resources from Azure's services
+```
+azure_discover_resources -c "<path_to_config_file>"
+```
+
+
+
 ### List available metrics from resource
 ```
-azure_discovery -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>"
+azure_discover_metrics -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>"
 ```
 
 
 
-### Retrieve metric
+### Retrieve metric from resource
 ```
 azure_metric -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>" "<metric>" <statistic> <timegrain> --timeshift <timeshift>
 ```
