@@ -36,7 +36,7 @@ def main(args=None):
     # Instantiate Azure resource client
     azure_resource_client = AzureClient(args)
 
-    # Instantiate discovery
+    # Instantiate resource discovery
     resource_client = AzureDiscoverResources(azure_resource_client)
 
     # Find resources using discovery

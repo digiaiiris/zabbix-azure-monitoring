@@ -20,7 +20,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.2.0/azure-monitoring-1.2.0.tar.gz
+pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.3.0/azure-monitoring-1.3.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -48,38 +48,19 @@ azure.discover.metrics[configuration_file, resource_group, provider_name, resour
 
 
 
+### Instance discovery
+
+Item Syntax | Description | Units |
+----------- | ----------- | ----- |
+azure.discover.instances[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name] | Discover instances from Azure's resources | {#INSTANCE_NAME} |
+
+
+
 ### Azure metrics
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
 azure.metric.timeshift[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
-
-
-
-
-## Retrieving available resources using the Azure CLI
-
-Available resources can be retrieved using the Azure CLI application.
-
-
-
-### Download and install the Azure CLI
-
-https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
-
-
-
-### Authenticate using the Azure CLI
-```
-az login --service-principal -u "<subscription_id>" -p "<path_to_pem_file>" --tenant "<tenant_id>"
-```
-
-
-
-### List available resources using Azure CLI
-
-`az resource list`
-
 
 
 
@@ -115,6 +96,13 @@ azure_discover_resources -c "<path_to_config_file>"
 ### List available metrics from resource
 ```
 azure_discover_metrics -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>"
+```
+
+
+
+### List available instances from resource
+```
+azure_discover_instances -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>" "<metric>"
 ```
 
 

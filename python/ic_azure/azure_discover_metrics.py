@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 from azure_client import AzureClient
 
 
-class AzureDiscovery(object):
+class AzureDiscoverMetrics(object):
     """Discover metrics from Azure's resources."""
 
     def __init__(self, azure_client):
@@ -57,8 +57,8 @@ def main(args=None):
     # Instantiate Azure client
     azure_client = AzureClient(args)
 
-    # Instantiate discovery
-    client = AzureDiscovery(azure_client)
+    # Instantiate metric discovery
+    client = AzureDiscoverMetrics(azure_client)
 
     # Find metric services using discovery
     servicesList = client.find_services(
