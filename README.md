@@ -60,6 +60,7 @@ azure.discover.instances[configuration_file, resource_group, provider_name, reso
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
+azure.metric[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, statistic, timegrain]' | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
 azure.metric.timeshift[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
 
 
