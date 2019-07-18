@@ -49,6 +49,7 @@ class AzureDiscoverInstances(object):
             interval="PT1M",
             metricnames=metric,
             aggregation="Total",
+            result_type="Metadata",
             filter="cloud/roleInstance eq '*'"
         )
 

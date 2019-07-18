@@ -76,6 +76,7 @@ class AzureMetric(object):
             interval=timegrain,
             metricnames=metric,
             aggregation=statistic,
+            result_type="Data",
             filter=filter
         )
 
