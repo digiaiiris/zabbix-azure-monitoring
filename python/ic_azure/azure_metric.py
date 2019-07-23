@@ -24,7 +24,7 @@ class AzureMetric(object):
         # Declare variables
         filter = None
         interval = -1
-        ret_val = -1
+        ret_val = ""
 
         # Retrieve interval and timeunit
         result = re.search(r"^PT?([\d]+)([DHM])$", timegrain)
@@ -133,11 +133,10 @@ def main(args=None):
         args.timeshift
     )
 
-    # If value was None, print zero. Otherwise print retrieved value.
-    if not value:
+    # If value is empty or we didn't get a value, print zero. Otherwise print
+    # the retrieved value.
+    if value == "":
         print(0)
-    elif value == -1:
-        print("")
     else:
         print(value)
 
