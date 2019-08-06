@@ -10,19 +10,19 @@ import re
 from azure_client import AzureClient
 
 
-class AzureDiscoverInstances(object):
-    """Retrieve instances from Azure's resource"""
+class AzureDiscoverRoles(object):
+    """Retrieve roles from Azure's resource"""
 
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
 
-    # Method to retrieve instances from Azure's resource
-    def get_instances(self, resource_group, provider_name, resource_type,
-                      resource_name, metric):
+    # Method to retrieve roles from Azure's resource
+    def get_roles(self, resource_group, provider_name, resource_type,
+                  resource_name, metric, dimension):
 
         # Declare variables
-        instanceList = []
+        rolesList = []
 
         # Calculate start/end times
         end_time = datetime.utcnow() - timedelta(minutes=5)
@@ -50,21 +50,21 @@ class AzureDiscoverInstances(object):
             metricnames=metric,
             aggregation="Total",
             result_type="Metadata",
-            filter="cloud/roleInstance eq '*'"
+            filter=dimension + " eq '*'"
         )
 
         # Loop through metric data and retrieve instances
         for item in metrics_data.value:
             for timeserie in item.timeseries:
                 for data in timeserie.metadatavalues:
-                    instanceList.append(data.__dict__.get("value"))
+                    rolesList.append(data.__dict__.get("value"))
 
-        return instanceList
+        return rolesList
 
 
 def main(args=None):
     parser = ArgumentParser(
-        description="Retrieve instances from Azure's resource"
+        description="Retrieve roles from Azure's resource"
     )
 
     parser.add_argument("-c", "--config", help="Path to configuration file.")
@@ -77,30 +77,32 @@ def main(args=None):
     parser.add_argument("-r", "--resource-name", dest="resource_name",
                         help="ResourceName for resource.")
     parser.add_argument("metric", help="Metric to obtain")
+    parser.add_argument("dimension", help="Dimension to use")
 
     args = parser.parse_args(args)
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
 
-    # Instantiate instance discovery
-    client = AzureDiscoverInstances(azure_client)
+    # Instantiate role discovery
+    client = AzureDiscoverRoles(azure_client)
 
-    # Find instances using discovery
-    instanceList = client.get_instances(
+    # Find roles using discovery
+    rolesList = client.get_roles(
         args.resource_group,
         args.provider_name,
         args.resource_type,
         args.resource_name,
-        args.metric
+        args.metric,
+        args.dimension
     )
 
-    # Create dictionary from instance data
+    # Create dictionary from role data
     names = []
-    for item in instanceList:
-        names.append({"{#INSTANCE_NAME}": item})
+    for item in rolesList:
+        names.append({"{#ROLE_NAME}": item})
 
-    # Output instances
+    # Output roles
     discovery = {"data": names}
     print json.dumps(discovery)
 
