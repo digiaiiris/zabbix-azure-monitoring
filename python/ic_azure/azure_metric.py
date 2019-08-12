@@ -18,8 +18,8 @@ class AzureMetric(object):
 
     # Method to retrieve metrics from Azure's resources
     def get_metric(self, resource_group, provider_name, resource_type,
-                   resource_name, instance_name, metric, statistic, timegrain,
-                   timeshift):
+                   resource_name, instance_name, role_name, metric, statistic,
+                   timegrain, timeshift):
 
         # Declare variables
         filter = None
@@ -62,9 +62,11 @@ class AzureMetric(object):
             resource_name
         )
 
-        # Set instance name to filter
+        # Set instance/role name to filter
         if instance_name:
             filter = "cloud/roleInstance eq '{}'".format(instance_name)
+        elif role_name:
+            filter = "cloud/roleName eq '{}'".format(role_name)
 
         # Retrieve metric data
         metrics_data = self._client.metrics.list(
@@ -105,6 +107,8 @@ def main(args=None):
                         help="ResourceName for resource.")
     parser.add_argument("-i", "--instance-name", dest="instance_name",
                         help="InstanceName for resource.")
+    parser.add_argument("-n", "--role-name", dest="role_name",
+                        help="RoleName for resource.")
     parser.add_argument("--timeshift", type=int, default=300,
                         help="Time shift for interval")
     parser.add_argument("metric", help="Metric to obtain")
@@ -127,6 +131,7 @@ def main(args=None):
         args.resource_type,
         args.resource_name,
         args.instance_name,
+        args.role_name,
         args.metric,
         args.statistic,
         args.timegrain,

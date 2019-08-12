@@ -17,7 +17,7 @@ setup(
         "console_scripts": [
             "azure_discover_resources = ic_azure.azure_discover_resources:main",
             "azure_discover_metrics = ic_azure.azure_discover_metrics:main",
-            "azure_discover_instances = ic_azure.azure_discover_instances:main",
+            "azure_discover_roles = ic_azure.azure_discover_roles:main",
             "azure_metric = ic_azure.azure_metric:main"
         ]
     },
