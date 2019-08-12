@@ -20,7 +20,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.3.1/azure-monitoring-1.3.1.tar.gz
+pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.4.0/azure-monitoring-1.4.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -48,11 +48,11 @@ azure.discover.metrics[configuration_file, resource_group, provider_name, resour
 
 
 
-### Instance discovery
+### roleInstance and roleName discovery
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.discover.instances[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name] | Discover instances from Azure's resources | {#INSTANCE_NAME} |
+azure.discover.roles[configuration_file, resource_group, provider_name, resource_type, resource, metric_category/metric_name, dimension] | Discover roles from Azure's resources | {#ROLE_NAME} |
 
 
 
@@ -101,9 +101,9 @@ azure_discover_metrics -c "<path_to_config_file>" -g "<resource_group>" -p "<pro
 
 
 
-### List available instances from resource
+### List available roleInstances and roleNames from resource
 ```
-azure_discover_instances -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>" "<metric>"
+azure_discover_roles -c "<path_to_config_file>" -g "<resource_group>" -p "<provider_name>" -t "<provider_type>" -r "<resource_name>" "<metric>" "dimension"
 ```
 
 
