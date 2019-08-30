@@ -140,7 +140,9 @@ def main(args=None):
 
     # If value is empty or we didn't get a value, print zero. Otherwise print
     # the retrieved value.
-    if value == "":
+    if not value:
+        print(0)
+    elif value == "":
         print(0)
     else:
         print(value)
