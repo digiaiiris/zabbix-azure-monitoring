@@ -13,8 +13,8 @@ def main(args=None):
         description="Run Kusto-queries to Azure's REST APIs"
     )
 
-    parser.add_argument("-c", "--config", help="Path to configuration file.")
-    parser.add_argument("-q", "--query", help="Kusto-query to run.")
+    parser.add_argument("config", type=str, help="Path to configuration file.")
+    parser.add_argument("query", type=str, help="Kusto-query to run.")
 
     args = parser.parse_args(args)
 

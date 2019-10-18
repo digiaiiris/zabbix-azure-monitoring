@@ -60,8 +60,16 @@ azure.discover.roles[configuration_file, resource, metric_category/metric_name, 
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.metric[configuration_file, resource, metric_category/metric_name, statistic, timegrain]' | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
-azure.metric.timeshift[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift]' | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric[configuration_file, resource, metric_category/metric_name, statistic, timegrain] | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.timeshift[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift] | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
+
+
+
+### Azure Kusto-queries
+
+Item Syntax | Description | Response |
+----------- | ----------- | -------- |
+azure.kusto[configuration_file, query] | Run Kusto-query to Azure's REST APIs | JSON
 
 
 
