@@ -29,7 +29,7 @@ def main(args=None):
         description="Discover resources from Azure's services"
     )
 
-    parser.add_argument("-c", "--config", help="Path to configuration file.")
+    parser.add_argument("config", type=str, help="Path to configuration file")
 
     args = parser.parse_args(args)
 
@@ -46,10 +46,7 @@ def main(args=None):
     names = []
     for item in resourceList:
         names.append({
-            "{#RESOURCE_GROUP}": item.split("/")[4],
-            "{#COMPANY_PROVIDER_NAME}": item.split("/")[6],
-            "{#RESOURCE_TYPE}": item.split("/")[7],
-            "{#RESOURCE_NAME}": item.split("/")[8]
+            "{#RESOURCE}": item,
         })
 
     # Output resources

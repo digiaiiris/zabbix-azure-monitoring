@@ -40,6 +40,11 @@ class AzureClient(object):
         self.application_id = config["application_id"]
         self.subscription_id = config["subscription_id"]
 
+        # Set class resources array
+        self.resources = {}
+        if config.get("resources"):
+            self.resources = config.get("resources")
+
         # Create authentication context
         login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
         context = adal.AuthenticationContext("{}/{}".format(

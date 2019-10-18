@@ -10,7 +10,7 @@ from azure_client import AzureClient
 
 def main(args=None):
     parser = ArgumentParser(
-        description=""
+        description="Run Kusto-queries to Azure's REST APIs"
     )
 
     parser.add_argument("-c", "--config", help="Path to configuration file.")

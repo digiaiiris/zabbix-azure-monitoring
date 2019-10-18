@@ -15,11 +15,11 @@ class AzureMetric(object):
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
+        self.resources = azure_client.resources
 
     # Method to retrieve metrics from Azure's resources
-    def get_metric(self, resource_group, provider_name, resource_type,
-                   resource_name, instance_name, role_name, metric, statistic,
-                   timegrain, timeshift):
+    def get_metric(self, resource, metric, statistic, timegrain, timeshift,
+                   instance_name, role_name):
 
         # Declare variables
         filter = None
@@ -51,26 +51,19 @@ class AzureMetric(object):
         else:
             raise ValueError("Unable to retrieve unit from timegrain.")
 
-        # Create resource ID
-        resource_id = "subscriptions/{}/resourceGroups/{}".format(
-            self.subscription_id,
-            resource_group
-        )
-        resource_id += "/providers/{}/{}/{}".format(
-            provider_name,
-            resource_type,
-            resource_name
-        )
-
         # Set instance/role name to filter
         if instance_name:
             filter = "cloud/roleInstance eq '{}'".format(instance_name)
         elif role_name:
             filter = "cloud/roleName eq '{}'".format(role_name)
 
+        # Read resource from config using key
+        if not resource.startswith("/subscriptions"):
+            resource = self.resources.get(resource)
+
         # Retrieve metric data
         metrics_data = self._client.metrics.list(
-            resource_id,
+            resource,
             timespan="{}/{}".format(
                 start_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 end_time.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -96,26 +89,19 @@ def main(args=None):
         description="Retrieve metrics from Azure's resources"
     )
 
-    parser.add_argument("-c", "--config", help="Path to configuration file.")
-    parser.add_argument("-g", "--resource-group", dest="resource_group",
-                        help="ResourceGroup for resource.")
-    parser.add_argument("-p", "--provider-name", dest="provider_name",
-                        help="Company.ProviderName for resource.")
-    parser.add_argument("-t", "--resource-type", dest="resource_type",
-                        help="ResourceType for resource.")
-    parser.add_argument("-r", "--resource-name", dest="resource_name",
-                        help="ResourceName for resource.")
-    parser.add_argument("-i", "--instance-name", dest="instance_name",
+    parser.add_argument("config", type=str, help="Path to configuration file")
+    parser.add_argument("resource", type=str, help="Azure resource to use")
+    parser.add_argument("metric", type=str, help="Metric to obtain")
+    parser.add_argument("statistic", type=str, help="Statistic to retrieve. " +
+                        "e.g. Average, Count, Minimum, Maximum, Total")
+    parser.add_argument("timegrain", type=str, help="Timegrain for metric. " +
+                        "e.g. PT1M, PT1H, P1D")
+    parser.add_argument("-i", "--instance-name", type=str, dest="instance_name",
                         help="InstanceName for resource.")
-    parser.add_argument("-n", "--role-name", dest="role_name",
+    parser.add_argument("-n", "--role-name", type=str, dest="role_name",
                         help="RoleName for resource.")
     parser.add_argument("--timeshift", type=int, default=300,
                         help="Time shift for interval")
-    parser.add_argument("metric", help="Metric to obtain")
-    parser.add_argument("statistic", help="Statistic to retrieve. e.g. " +
-                        "Average, Count, Minimum, Maximum, Total")
-    parser.add_argument("timegrain", help="Timegrain for metric. e.g. " +
-                        "PT1M, PT1H, P1D")
 
     args = parser.parse_args(args)
 
@@ -126,16 +112,13 @@ def main(args=None):
     client = AzureMetric(azure_client)
 
     value = client.get_metric(
-        args.resource_group,
-        args.provider_name,
-        args.resource_type,
-        args.resource_name,
-        args.instance_name,
-        args.role_name,
+        args.resource,
         args.metric,
         args.statistic,
         args.timegrain,
-        args.timeshift
+        args.timeshift,
+        args.instance_name,
+        args.role_name
     )
 
     # If value is empty or we didn't get a value, print zero. Otherwise print
