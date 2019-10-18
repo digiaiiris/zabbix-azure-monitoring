@@ -5,6 +5,7 @@ import datetime
 import errno
 import json
 import os
+import requests
 
 # Azure imports
 import adal
@@ -17,7 +18,7 @@ from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 class AzureClient(object):
     """Azure API client class."""
 
-    def __init__(self, args):
+    def __init__(self, args, api=None):
         """Initializes connection to Azure service."""
 
         # Check if configuration file exists
@@ -35,11 +36,11 @@ class AzureClient(object):
             ))
 
         # Set class variables from configuration file
+        self.application_id = config["application_id"]
         self.subscription_id = config["subscription_id"]
 
         # Create authentication context
         login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
-        resource = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
         context = adal.AuthenticationContext("{}/{}".format(
             login_endpoint,
             config["tenant_id"]
@@ -58,18 +59,24 @@ class AzureClient(object):
                 config["pemfile"]
             ))
 
+        # If Azure API URL was not provided, use default AD resource
+        if api:
+            self.api = api
+        else:
+            self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
+
         # Acquire token with client certificate
-        management_token = context.acquire_token_with_client_certificate(
-            resource,
-            config["application_id"],
+        self.management_token = context.acquire_token_with_client_certificate(
+            self.api,
+            config["client_id"],
             config["key"],
             config["thumbprint"]
         )
 
         # Create credentials object
         self.credentials = AADTokenCredentials(
-            management_token,
-            config["application_id"]
+            self.management_token,
+            config["client_id"]
         )
 
     def client(self):
@@ -98,6 +105,20 @@ class AzureClient(object):
 
         return self._resource_client
 
+    def kusto_query(self, query):
+        """Initializes new Kusto-query client for Azure services."""
+
+        response = requests.post(
+            headers = {
+                "Authorization": "Bearer {}".format(
+                    self.management_token.get("accessToken")),
+                "Content-Type": "application/json"
+            },
+            json = { "query": query },
+            url = "{}v1/apps/{}/query".format(self.api, self.application_id)
+        )
+
+        return response.json()
 
 if __name__ == "__main__":
     pass
