@@ -18,14 +18,14 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    # Azure API URL
+    # Azure REST API URL
     api = "https://api.applicationinsights.io/"
     #api = "https://api.loganalytics.io/"
 
     # Instantiate Azure Kusto-client
     azure_client = AzureClient(args, api=api)
 
-    #
+    # Run Kusto-query and return response
     response = azure_client.kusto_query(args.query)
     print(response)
 

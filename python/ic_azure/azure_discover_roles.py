@@ -104,7 +104,7 @@ def main(args=None):
 
     # Output roles
     discovery = {"data": names}
-    print json.dumps(discovery)
+    print(json.dumps(discovery))
 
 
 if __name__ == "__main__":

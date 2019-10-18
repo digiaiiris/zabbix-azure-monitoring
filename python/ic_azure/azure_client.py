@@ -6,6 +6,7 @@ import errno
 import json
 import os
 import requests
+import sys
 
 # Azure imports
 import adal
@@ -66,16 +67,19 @@ class AzureClient(object):
             self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
 
         # Acquire token with client certificate
-        self.management_token = context.acquire_token_with_client_certificate(
+        management_token = context.acquire_token_with_client_certificate(
             self.api,
             config["client_id"],
             config["key"],
             config["thumbprint"]
         )
 
+        # Grab access token
+        self.access_token = management_token.get("accessToken")
+
         # Create credentials object
         self.credentials = AADTokenCredentials(
-            self.management_token,
+            management_token,
             config["client_id"]
         )
 
@@ -106,18 +110,54 @@ class AzureClient(object):
         return self._resource_client
 
     def kusto_query(self, query):
-        """Initializes new Kusto-query client for Azure services."""
+        """Run Kusto-query to Azure REST APIs."""
 
-        response = requests.post(
-            headers = {
-                "Authorization": "Bearer {}".format(
-                    self.management_token.get("accessToken")),
-                "Content-Type": "application/json"
-            },
-            json = { "query": query },
-            url = "{}v1/apps/{}/query".format(self.api, self.application_id)
-        )
+        try:
+            response = requests.post(
+                headers = {
+                    "Authorization": "Bearer {}".format(self.access_token),
+                    "Content-Type": "application/json"
+                },
+                json = { "query": query },
+                url = "{}v1/apps/{}/query".format(
+                    self.api,
+                    self.application_id
+                )
+            )
+        except requests.exceptions.RequestException as e:
+            print("There was an ambiguous exception that occurred while " +
+                "handling your request. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.ConnectionError as e:
+            print("A Connection error occurred: {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.HTTPError as e:
+            print("An HTTP error occurred. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.URLRequired as e:
+            print("A valid URL is required to make a request. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.TooManyRedirects as e:
+            print("Too many redirects. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.ConnectTimeout as e:
+            print("The request timed out while trying to connect to the " +
+                "remote server. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.ReadTimeout as e:
+            print("The server did not send any data in the allotted amount " +
+                "of time. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.Timeout as e:
+            print("The request timed out. {}".format(e))
+            sys.exit(1)
 
+        # Check HTTP status code
+        if response.status_code != 200:
+            print("HTTP status code error. {}".format(response.status_code))
+            sys.exit(1)
+
+        # Return JSON response
         return response.json()
 
 if __name__ == "__main__":

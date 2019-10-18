@@ -78,7 +78,7 @@ def main(args=None):
 
     # Output metric services
     discovery = {"data": names}
-    print json.dumps(discovery)
+    print(json.dumps(discovery))
 
 
 if __name__ == "__main__":
