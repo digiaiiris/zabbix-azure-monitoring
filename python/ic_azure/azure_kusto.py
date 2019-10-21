@@ -23,10 +23,15 @@ def main(args=None):
     # api = "https://api.loganalytics.io/"
 
     # Instantiate Azure Kusto-client
-    azure_client = AzureClient(args, api=api)
+    azure_client = AzureClient(args, api=api, kusto=True)
+
+    # Predefined queries start with a certain string
+    query = args.query
+    if azure_client.kusto_queries.get(query):
+        query = azure_client.kusto_queries.get(query)
 
     # Run Kusto-query and return response
-    response = azure_client.kusto_query(args.query)
+    response = azure_client.kusto_query(query)
     print(response)
 
 

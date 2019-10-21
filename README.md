@@ -84,6 +84,11 @@ azure.kusto[configuration_file, query] | Run Kusto-query to Azure's REST APIs | 
     "pemfile": "<path_to_pem_file>",
     "tenant_id": "<tenant_id>",
     "thumbprint": "<pem_file_thumbprint>",
+    "kusto_queries": {
+        "<query1>": "<kusto_query_1>",
+        "<query2>": "<kusto_query_2>",
+        "<query3>": "<kusto_query_3>"
+    },
     "resources": {
         "<resource1>": "<id_for_resource_1>",
         "<resource2>": "<id_for_resource_2>",

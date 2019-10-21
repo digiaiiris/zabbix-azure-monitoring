@@ -19,7 +19,7 @@ from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 class AzureClient(object):
     """Azure API client class."""
 
-    def __init__(self, args, api=None):
+    def __init__(self, args, api=None, kusto=False):
         """Initializes connection to Azure service."""
 
         # Check if configuration file exists
@@ -45,7 +45,13 @@ class AzureClient(object):
         if api:
             self.api = api
 
-        # Set class resources array
+        # Set Kusto-queries array
+        if kusto:
+            self.kusto_queries = {}
+            if config.get("kusto_queries"):
+                self.kusto_queries = config.get("kusto_queries")
+
+        # Set resources array
         self.resources = {}
         if config.get("resources"):
             self.resources = config.get("resources")
