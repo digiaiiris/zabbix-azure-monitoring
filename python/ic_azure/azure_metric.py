@@ -96,7 +96,8 @@ def main(args=None):
                         "e.g. Average, Count, Minimum, Maximum, Total")
     parser.add_argument("timegrain", type=str, help="Timegrain for metric. " +
                         "e.g. PT1M, PT1H, P1D")
-    parser.add_argument("-i", "--instance-name", type=str, dest="instance_name",
+    parser.add_argument("-i", "--instance-name", type=str,
+                        dest="instance_name",
                         help="InstanceName for resource.")
     parser.add_argument("-n", "--role-name", type=str, dest="role_name",
                         help="RoleName for resource.")

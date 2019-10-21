@@ -35,7 +35,6 @@ def main(args=None):
         description="Discover metrics from Azure's resources."
     )
 
-
     parser.add_argument("config", type=str, help="Path to configuration file")
     parser.add_argument("resource", type=str, help="Azure resource to use")
 

@@ -20,7 +20,7 @@ def main(args=None):
 
     # Azure REST API URL
     api = "https://api.applicationinsights.io/"
-    #api = "https://api.loganalytics.io/"
+    # api = "https://api.loganalytics.io/"
 
     # Instantiate Azure Kusto-client
     azure_client = AzureClient(args, api=api)
@@ -28,6 +28,7 @@ def main(args=None):
     # Run Kusto-query and return response
     response = azure_client.kusto_query(args.query)
     print(response)
+
 
 if __name__ == "__main__":
     main()

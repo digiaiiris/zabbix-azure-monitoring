@@ -36,9 +36,14 @@ class AzureClient(object):
                 args.config
             ))
 
-        # Set class variables from configuration file
+        # Set instance variables
+        self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
         self.application_id = config["application_id"]
         self.subscription_id = config["subscription_id"]
+
+        # Azure API URL (for Kusto-queries)
+        if api:
+            self.api = api
 
         # Set class resources array
         self.resources = {}
@@ -64,12 +69,6 @@ class AzureClient(object):
             raise Exception("I/O error while reading PEM-file: {}".format(
                 config["pemfile"]
             ))
-
-        # If Azure API URL was not provided, use default AD resource
-        if api:
-            self.api = api
-        else:
-            self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
 
         # Acquire token with client certificate
         management_token = context.acquire_token_with_client_certificate(
@@ -119,19 +118,19 @@ class AzureClient(object):
 
         try:
             response = requests.post(
-                headers = {
+                headers={
                     "Authorization": "Bearer {}".format(self.access_token),
                     "Content-Type": "application/json"
                 },
-                json = { "query": query },
-                url = "{}v1/apps/{}/query".format(
+                json={"query": query},
+                url="{}v1/apps/{}/query".format(
                     self.api,
                     self.application_id
                 )
             )
         except requests.exceptions.RequestException as e:
             print("There was an ambiguous exception that occurred while " +
-                "handling your request. {}".format(e))
+                  "handling your request. {}".format(e))
             sys.exit(1)
         except requests.exceptions.ConnectionError as e:
             print("A Connection error occurred: {}".format(e))
@@ -147,11 +146,11 @@ class AzureClient(object):
             sys.exit(1)
         except requests.exceptions.ConnectTimeout as e:
             print("The request timed out while trying to connect to the " +
-                "remote server. {}".format(e))
+                  "remote server. {}".format(e))
             sys.exit(1)
         except requests.exceptions.ReadTimeout as e:
             print("The server did not send any data in the allotted amount " +
-                "of time. {}".format(e))
+                  "of time. {}".format(e))
             sys.exit(1)
         except requests.exceptions.Timeout as e:
             print("The request timed out. {}".format(e))
@@ -164,6 +163,7 @@ class AzureClient(object):
 
         # Return JSON response
         return response.json()
+
 
 if __name__ == "__main__":
     pass
