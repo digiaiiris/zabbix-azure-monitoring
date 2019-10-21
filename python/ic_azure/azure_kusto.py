@@ -32,7 +32,7 @@ def main(args=None):
 
     # Run Kusto-query and return response
     response = azure_client.kusto_query(query)
-    print(response)
+    print(json.dumps(response))
 
 
 if __name__ == "__main__":
