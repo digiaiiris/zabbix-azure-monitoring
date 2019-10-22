@@ -89,20 +89,20 @@ def main(args=None):
         description="Retrieve metrics from Azure's resources"
     )
 
-    parser.add_argument("config", type=str, help="Path to configuration file")
-    parser.add_argument("resource", type=str, help="Azure resource to use")
-    parser.add_argument("metric", type=str, help="Metric to obtain")
-    parser.add_argument("statistic", type=str, help="Statistic to retrieve. " +
-                        "e.g. Average, Count, Minimum, Maximum, Total")
-    parser.add_argument("timegrain", type=str, help="Timegrain for metric. " +
-                        "e.g. PT1M, PT1H, P1D")
+    parser.add_argument("config", type=str, help="Path to configuration file.")
+    parser.add_argument("resource", type=str, help="Azure resource to use.")
+    parser.add_argument("metric", type=str, help="Metric to obtain.")
+    parser.add_argument("statistic", type=str, help="Statistic to retrieve, " +
+                        "e.g. Average, Count, Minimum, Maximum, Total.")
+    parser.add_argument("timegrain", type=str, help="Timegrain for metric, " +
+                        "e.g. PT1M, PT1H, P1D.")
     parser.add_argument("-i", "--instance-name", type=str,
                         dest="instance_name",
                         help="InstanceName for resource.")
-    parser.add_argument("-n", "--role-name", type=str, dest="role_name",
+    parser.add_argument("-r", "--role-name", type=str, dest="role_name",
                         help="RoleName for resource.")
-    parser.add_argument("--timeshift", type=int, default=300,
-                        help="Time shift for interval")
+    parser.add_argument("--timeshift", default=0, type=int,
+                        help="Time shift for interval.")
 
     args = parser.parse_args(args)
 
