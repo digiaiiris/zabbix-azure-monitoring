@@ -14,24 +14,17 @@ class AzureDiscoverMetrics(object):
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
+        self.resources = azure_client.resources
 
-    def find_services(self, resource_group, provider_name, resource_type,
-                      resource_name):
+    def find_services(self, resource):
         servicesList = []
 
-        # Create resource ID
-        resource_id = "subscriptions/{}/resourceGroups/{}".format(
-            self.subscription_id,
-            resource_group
-        )
-        resource_id += "/providers/{}/{}/{}".format(
-            provider_name,
-            resource_type,
-            resource_name
-        )
+        # Read resource from config using key
+        if not resource.startswith("/subscriptions"):
+            resource = self.resources.get(resource)
 
         # List metrics from resource
-        for metric in self._client.metric_definitions.list(resource_id):
+        for metric in self._client.metric_definitions.list(resource):
             servicesList.append(metric.name.value)
 
         return servicesList
@@ -42,15 +35,8 @@ def main(args=None):
         description="Discover metrics from Azure's resources."
     )
 
-    parser.add_argument("-c", "--config", help="Path to configuration file.")
-    parser.add_argument("-g", "--resource-group", dest="resource_group",
-                        help="ResourceGroup for resource.")
-    parser.add_argument("-p", "--provider-name", dest="provider_name",
-                        help="Company.ProviderName for resource.")
-    parser.add_argument("-t", "--resource-type", dest="resource_type",
-                        help="ResourceType for resource.")
-    parser.add_argument("-r", "--resource-name", dest="resource_name",
-                        help="ResourceName for resource.")
+    parser.add_argument("config", type=str, help="Path to configuration file")
+    parser.add_argument("resource", type=str, help="Azure resource to use")
 
     args = parser.parse_args(args)
 
@@ -62,10 +48,7 @@ def main(args=None):
 
     # Find metric services using discovery
     servicesList = client.find_services(
-        args.resource_group,
-        args.provider_name,
-        args.resource_type,
-        args.resource_name
+        args.resource
     )
 
     # Create dictionary from metrics data
@@ -78,7 +61,7 @@ def main(args=None):
 
     # Output metric services
     discovery = {"data": names}
-    print json.dumps(discovery)
+    print(json.dumps(discovery))
 
 
 if __name__ == "__main__":

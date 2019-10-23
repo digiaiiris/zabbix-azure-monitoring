@@ -5,6 +5,8 @@ import datetime
 import errno
 import json
 import os
+import requests
+import sys
 
 # Azure imports
 import adal
@@ -17,7 +19,7 @@ from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 class AzureClient(object):
     """Azure API client class."""
 
-    def __init__(self, args):
+    def __init__(self, args, api=None, kusto=False):
         """Initializes connection to Azure service."""
 
         # Check if configuration file exists
@@ -34,12 +36,28 @@ class AzureClient(object):
                 args.config
             ))
 
-        # Set class variables from configuration file
+        # Set instance variables
+        self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
+        self.application_id = config["application_id"]
         self.subscription_id = config["subscription_id"]
+
+        # Azure API URL (for Kusto-queries)
+        if api:
+            self.api = api
+
+        # Set Kusto-queries array
+        if kusto:
+            self.kusto_queries = {}
+            if config.get("kusto_queries"):
+                self.kusto_queries = config.get("kusto_queries")
+
+        # Set resources array
+        self.resources = {}
+        if config.get("resources"):
+            self.resources = config.get("resources")
 
         # Create authentication context
         login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
-        resource = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
         context = adal.AuthenticationContext("{}/{}".format(
             login_endpoint,
             config["tenant_id"]
@@ -60,16 +78,19 @@ class AzureClient(object):
 
         # Acquire token with client certificate
         management_token = context.acquire_token_with_client_certificate(
-            resource,
-            config["application_id"],
+            self.api,
+            config["client_id"],
             config["key"],
             config["thumbprint"]
         )
 
+        # Grab access token
+        self.access_token = management_token.get("accessToken")
+
         # Create credentials object
         self.credentials = AADTokenCredentials(
             management_token,
-            config["application_id"]
+            config["client_id"]
         )
 
     def client(self):
@@ -97,6 +118,57 @@ class AzureClient(object):
         )
 
         return self._resource_client
+
+    def kusto_query(self, query):
+        """Run Kusto-query to Azure REST APIs."""
+
+        try:
+            response = requests.post(
+                headers={
+                    "Authorization": "Bearer {}".format(self.access_token),
+                    "Content-Type": "application/json"
+                },
+                json={"query": query},
+                url="{}v1/apps/{}/query".format(
+                    self.api,
+                    self.application_id
+                )
+            )
+        except requests.exceptions.RequestException as e:
+            print("There was an ambiguous exception that occurred while " +
+                  "handling your request. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.ConnectionError as e:
+            print("A Connection error occurred: {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.HTTPError as e:
+            print("An HTTP error occurred. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.URLRequired as e:
+            print("A valid URL is required to make a request. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.TooManyRedirects as e:
+            print("Too many redirects. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.ConnectTimeout as e:
+            print("The request timed out while trying to connect to the " +
+                  "remote server. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.ReadTimeout as e:
+            print("The server did not send any data in the allotted amount " +
+                  "of time. {}".format(e))
+            sys.exit(1)
+        except requests.exceptions.Timeout as e:
+            print("The request timed out. {}".format(e))
+            sys.exit(1)
+
+        # Check HTTP status code
+        if response.status_code != 200:
+            print("HTTP status code error. {}".format(response.status_code))
+            sys.exit(1)
+
+        # Return JSON response
+        return response.json()
 
 
 if __name__ == "__main__":

@@ -16,10 +16,10 @@ class AzureDiscoverRoles(object):
     def __init__(self, azure_client):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
+        self.resources = azure_client.resources
 
     # Method to retrieve roles from Azure's resource
-    def get_roles(self, resource_group, provider_name, resource_type,
-                  resource_name, metric, dimension):
+    def get_roles(self, resource, metric, dimension):
 
         # Declare variables
         rolesList = []
@@ -28,20 +28,13 @@ class AzureDiscoverRoles(object):
         end_time = datetime.utcnow() - timedelta(minutes=5)
         start_time = end_time - timedelta(minutes=1)
 
-        # Create resource ID
-        resource_id = "subscriptions/{}/resourceGroups/{}".format(
-            self.subscription_id,
-            resource_group
-        )
-        resource_id += "/providers/{}/{}/{}".format(
-            provider_name,
-            resource_type,
-            resource_name
-        )
+        # Read resource from config using key
+        if not resource.startswith("/subscriptions"):
+            resource = self.resources.get(resource)
 
         # Retrieve instance data
         metrics_data = self._client.metrics.list(
-            resource_id,
+            resource,
             timespan="{}/{}".format(
                 start_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 end_time.strftime('%Y-%m-%dT%H:%M:%SZ')
@@ -67,17 +60,10 @@ def main(args=None):
         description="Retrieve roles from Azure's resource"
     )
 
-    parser.add_argument("-c", "--config", help="Path to configuration file.")
-    parser.add_argument("-g", "--resource-group", dest="resource_group",
-                        help="ResourceGroup for resource.")
-    parser.add_argument("-p", "--provider-name", dest="provider_name",
-                        help="Company.ProviderName for resource.")
-    parser.add_argument("-t", "--resource-type", dest="resource_type",
-                        help="ResourceType for resource.")
-    parser.add_argument("-r", "--resource-name", dest="resource_name",
-                        help="ResourceName for resource.")
-    parser.add_argument("metric", help="Metric to obtain")
-    parser.add_argument("dimension", help="Dimension to use")
+    parser.add_argument("config", type=str, help="Path to configuration file")
+    parser.add_argument("resource", type=str, help="Azure resource to use")
+    parser.add_argument("metric", type=str, help="Metric to obtain")
+    parser.add_argument("dimension", type=str, help="Dimension to use")
 
     args = parser.parse_args(args)
 
@@ -89,10 +75,7 @@ def main(args=None):
 
     # Find roles using discovery
     rolesList = client.get_roles(
-        args.resource_group,
-        args.provider_name,
-        args.resource_type,
-        args.resource_name,
+        args.resource,
         args.metric,
         args.dimension
     )
@@ -104,7 +87,7 @@ def main(args=None):
 
     # Output roles
     discovery = {"data": names}
-    print json.dumps(discovery)
+    print(json.dumps(discovery))
 
 
 if __name__ == "__main__":
