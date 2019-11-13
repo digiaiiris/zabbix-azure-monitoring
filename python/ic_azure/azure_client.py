@@ -41,11 +41,11 @@ class AzureClient(object):
         self.application_id = config["application_id"]
         self.subscription_id = config["subscription_id"]
 
-        # Azure API URL (for Kusto-queries)
+        # Azure API URL (for Kusto queries)
         if api:
             self.api = api
 
-        # Set Kusto-queries array
+        # Set Kusto queries array
         if kusto:
             self.kusto_queries = {}
             if config.get("kusto_queries"):
@@ -119,21 +119,32 @@ class AzureClient(object):
 
         return self._resource_client
 
-    def kusto_query(self, query):
-        """Run Kusto-query to Azure REST APIs."""
+    def query(self, method="get", json=None, url=""):
+        """Run query to Azure REST APIs."""
 
         try:
-            response = requests.post(
-                headers={
-                    "Authorization": "Bearer {}".format(self.access_token),
-                    "Content-Type": "application/json"
-                },
-                json={"query": query},
-                url="{}v1/apps/{}/query".format(
-                    self.api,
-                    self.application_id
+            # Define request headers
+            headers = {
+                "Authorization": "Bearer {}".format(self.access_token),
+                "Content-Type": "application/json"
+            }
+
+            # Do request
+            if method == "get":
+                response = requests.get(
+                    headers=headers,
+                    json=json,
+                    url=url
                 )
-            )
+            elif method == "post":
+                response = requests.post(
+                    headers=headers,
+                    json=json,
+                    url=url
+                )
+            else:
+                print("Invalid method. {}".format(method))
+                sys.exit(1)
         except requests.exceptions.RequestException as e:
             print("There was an ambiguous exception that occurred while " +
                   "handling your request. {}".format(e))

@@ -20,7 +20,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.5.0/azure-monitoring-1.5.0.tar.gz
+pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.6.0/azure-monitoring-1.6.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -65,11 +65,21 @@ azure.metric.timeshift[configuration_file, resource, metric_category/metric_name
 
 
 
-### Azure Kusto-queries
+### Azure Kusto queries
 
 Item Syntax | Description | Response |
 ----------- | ----------- | -------- |
-azure.kusto[configuration_file, query] | Run Kusto-query to Azure's REST APIs | JSON
+azure.kusto[configuration_file, query] | Run Kusto query to Azure's REST APIs | JSON
+
+
+
+### Azure Logic App queries
+
+Item Syntax | Description | Response |
+----------- | ----------- | -------- |
+azure.logic.apps[configuration_file, resource_group] | Dicover Azure Logic App workflows | {#WORKFLOW_ID}, {#WORKFLOW_NAME}
+azure.logic.apps[configuration_file, resource_group, workflow_name] | Dicover Azure Logic App workflow triggers | {#TRIGGER_ID}, {#TRIGGER_NAME}
+azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Dicover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
 
 
 
