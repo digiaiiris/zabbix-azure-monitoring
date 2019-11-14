@@ -142,7 +142,6 @@ class AzureClient(object):
                     json=json,
                     url=url
                 )
-                print(response.text)
             else:
                 print("Invalid method. {}".format(method))
                 sys.exit(1)
