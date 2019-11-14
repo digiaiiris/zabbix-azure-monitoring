@@ -31,7 +31,8 @@ def main(args=None):
         query = azure_client.kusto_queries.get(query)
 
     # Post query
-    response = azure_client.post_query(
+    response = azure_client.query(
+        method="POST",
         json={"query": query},
         url="{}v1/apps/{}/query".format(api, azure_client.application_id)
     )

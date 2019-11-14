@@ -46,7 +46,7 @@ def main(args=None):
         url += "/workflows?api-version={}".format(args.version)
 
     # Run query to API
-    response = azure_client.query(method="get", url=url)
+    response = azure_client.query(method="GET", url=url)
 
     # Print results depending on arguments
     discovery = []

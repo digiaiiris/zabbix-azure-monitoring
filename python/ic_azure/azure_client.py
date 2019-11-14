@@ -119,7 +119,7 @@ class AzureClient(object):
 
         return self._resource_client
 
-    def query(self, method="get", json=None, url=""):
+    def query(self, method="GET", json=None, url=""):
         """Run query to Azure REST APIs."""
 
         try:
@@ -130,18 +130,19 @@ class AzureClient(object):
             }
 
             # Do request
-            if method == "get":
+            if method == "GET":
                 response = requests.get(
                     headers=headers,
                     json=json,
                     url=url
                 )
-            elif method == "post":
+            elif method == "POST":
                 response = requests.post(
                     headers=headers,
                     json=json,
                     url=url
                 )
+                print(response.text)
             else:
                 print("Invalid method. {}".format(method))
                 sys.exit(1)
