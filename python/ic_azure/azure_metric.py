@@ -4,6 +4,7 @@
 from datetime import datetime, timedelta
 from argparse import ArgumentParser
 import re
+import sys
 
 # Azure client imports
 from azure_client import AzureClient
@@ -16,6 +17,7 @@ class AzureMetric(object):
         self._client = azure_client.client()
         self.subscription_id = azure_client.subscription_id
         self.resources = azure_client.resources
+        self.timeout = azure_client.timeout
 
     # Method to retrieve metrics from Azure's resources
     def get_metric(self, resource, metric, statistic, timegrain, timeshift,
@@ -62,18 +64,26 @@ class AzureMetric(object):
             resource = self.resources.get(resource)
 
         # Retrieve metric data
-        metrics_data = self._client.metrics.list(
-            resource,
-            timespan="{}/{}".format(
-                start_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                end_time.strftime('%Y-%m-%dT%H:%M:%SZ')
-            ),
-            interval=timegrain,
-            metricnames=metric,
-            aggregation=statistic,
-            result_type="Data",
-            filter=filter
-        )
+        try:
+            metrics_data = self._client.metrics.list(
+                resource,
+                timespan="{}/{}".format(
+                    start_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                    end_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+                ),
+                interval=timegrain,
+                metricnames=metric,
+                aggregation=statistic,
+                result_type="Data",
+                filter=filter,
+                timeout=self.timeout
+            )
+        except TypeError as e:
+            print("Operation timed out. {}".format(e))
+            sys.exit(1)
+        except Exception as e:
+            print("An exception occured. {}".format(e))
+            sys.exit(1)
 
         # Loop through metric data and retrieve relevant value
         for item in metrics_data.value:
