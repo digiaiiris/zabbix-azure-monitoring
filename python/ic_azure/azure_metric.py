@@ -6,6 +6,11 @@ from argparse import ArgumentParser
 import re
 import sys
 
+# Azure imports
+from msrest.exceptions import AuthenticationError, ClientRequestError, \
+    DeserializationError, HttpOperationError, SerializationError, \
+    TokenExpiredError, ValidationError
+
 # Azure client imports
 from azure_client import AzureClient
 
@@ -78,8 +83,26 @@ class AzureMetric(object):
                 filter=filter,
                 timeout=self.timeout
             )
-        except TypeError as e:
-            print("Operation timed out. {}".format(e))
+        except AuthenticationError as e:
+            print("Client request failed to authenticate. {}".format(e))
+            sys.exit(1)
+        except ClientRequestError as e:
+            print("Client request failed. {}".format(e))
+            sys.exit(1)
+        except DeserializationError as e:
+            print("Error raised during response deserialization. {}".format(e))
+            sys.exit(1)
+        except HttpOperationError as e:
+            print("HTTP operation error. {}".format(e))
+            sys.exit(1)
+        except SerializationError as e:
+            print("Error raised during request serialization. {}".format(e))
+            sys.exit(1)
+        except TokenExpiredError as e:
+            print("OAuth token expired. {}".format(e))
+            sys.exit(1)
+        except ValidationError as e:
+            print("Request parameter validation failed. {}".format(e))
             sys.exit(1)
         except Exception as e:
             print("An exception occured. {}".format(e))
