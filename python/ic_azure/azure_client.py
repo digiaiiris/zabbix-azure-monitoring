@@ -56,6 +56,12 @@ class AzureClient(object):
         if config.get("resources"):
             self.resources = config.get("resources")
 
+        # Set script timeout
+        if config.get("timeout"):
+            self.timeout = config["timeout"]
+        else:
+            self.timeout = 5
+
         # Create authentication context
         login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
         context = adal.AuthenticationContext("{}/{}".format(
@@ -134,12 +140,14 @@ class AzureClient(object):
                 response = requests.get(
                     headers=headers,
                     json=json,
+                    timeout=self.timeout,
                     url=url
                 )
             elif method == "POST":
                 response = requests.post(
                     headers=headers,
                     json=json,
+                    timeout=self.timeout,
                     url=url
                 )
             else:
