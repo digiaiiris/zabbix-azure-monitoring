@@ -14,7 +14,10 @@ def main(args=None):
     )
 
     parser.add_argument("config", type=str, help="Path to configuration file.")
-    parser.add_argument("query", type=str, help="Kusto query to run.")
+    parser.add_argument("application", type=str, help="Application ID or " +
+                        "key to match predefined application IDs.")
+    parser.add_argument("query", type=str, help="Kusto query to run or key " +
+                        "to match predefined query.")
 
     args = parser.parse_args(args)
 
@@ -30,11 +33,16 @@ def main(args=None):
     if azure_client.kusto_queries.get(query):
         query = azure_client.kusto_queries.get(query)
 
+    # Match predefined application IDs
+    application_id = args.application
+    if azure_client.application_ids.get(application_id):
+        application_id = azure_client.application_ids.get(application_id)
+
     # Post query
     response = azure_client.query(
         method="POST",
         json={"query": query},
-        url="{}v1/apps/{}/query".format(api, azure_client.application_id)
+        url="{}v1/apps/{}/query".format(api, application_id)
     )
 
     # Print response
