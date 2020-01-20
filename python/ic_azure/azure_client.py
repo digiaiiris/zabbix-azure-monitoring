@@ -38,12 +38,16 @@ class AzureClient(object):
 
         # Set instance variables
         self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
-        self.application_id = config["application_id"]
         self.subscription_id = config["subscription_id"]
 
         # Azure API URL (for Kusto queries)
         if api:
             self.api = api
+
+        # Set application IDs array
+        self.application_ids = {}
+        if config.get("application_ids"):
+            self.application_ids = config.get("application_ids")
 
         # Set Kusto queries array
         if kusto:

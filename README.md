@@ -20,7 +20,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.6.1/azure-monitoring-1.6.1.tar.gz
+pip install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.7.0/azure-monitoring-1.7.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -88,21 +88,25 @@ azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name
 ### Example configuration file
 ```
 {
-    "application_id": "<application_id>",
     "client_id": "<client_id>",
     "subscription_id": "<subscription_id>",
     "pemfile": "<path_to_pem_file>",
     "tenant_id": "<tenant_id>",
     "thumbprint": "<pem_file_thumbprint>",
+    "application_ids": {
+        "<application_key_1>": "<application_id_1>",
+        "<application_key_2>": "<application_id_2>",
+        "<application_key_3>": "<application_id_3>"
+    },
     "kusto_queries": {
-        "<query1>": "<kusto_query_1>",
-        "<query2>": "<kusto_query_2>",
-        "<query3>": "<kusto_query_3>"
+        "<kusto_query_key_1>": "<kusto_query_1>",
+        "<kusto_query_key_2>": "<kusto_query_2>",
+        "<kusto_query_key_3>": "<kusto_query_3>"
     },
     "resources": {
-        "<resource1>": "<id_for_resource_1>",
-        "<resource2>": "<id_for_resource_2>",
-        "<resource3>": "<id_for_resource_3>"
+        "<resource_key_1>": "<resource_path_1>",
+        "<resource_key_2>": "<resource_path_2>",
+        "<resource_key_3>": "<resource_path_3>"
     }
 }
 ```
