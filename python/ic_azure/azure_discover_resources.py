@@ -47,6 +47,10 @@ def main(args=None):
     for item in resourceList:
         names.append({
             "{#RESOURCE}": item,
+            "{#RESOURCE_GROUP}": item.split("/")[4],
+            "{#COMPANY_PROVIDER_NAME}": item.split("/")[6],
+            "{#RESOURCE_TYPE}": item.split("/")[7],
+            "{#RESOURCE_NAME}": item.split("/")[8]
         })
 
     # Output resources
