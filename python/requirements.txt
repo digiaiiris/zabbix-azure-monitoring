@@ -1,2 +1,4 @@
 adal
-azure
+azure-mgmt-monitor>=0.9.0
+azure-mgmt-resource>=9.0.0
+msrestazure>=0.6.3
