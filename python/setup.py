@@ -24,10 +24,10 @@ setup(
         ]
     },
     install_requires=[
-        'adal>=1.2.1',
-        'azure-mgmt-monitor>=0.9.0',
-        'azure-mgmt-resource>=9.0.0',
-        'msrestazure>=0.6.3',
-        'requests>=2.22.0'
+        'adal>=1.2.5',
+        'azure-mgmt-monitor>=1.0.1',
+        'azure-mgmt-resource>=15.0.0',
+        'msrestazure>=0.6.4',
+        'requests>=2.24.0'
     ]
 )
