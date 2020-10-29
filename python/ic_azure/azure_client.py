@@ -13,7 +13,6 @@ import adal
 from azure.identity import CertificateCredential
 from azure.mgmt.monitor import MonitorClient
 from azure.mgmt.resource import ResourceManagementClient
-#from msrestazure.azure_active_directory import AADTokenCredentials
 from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
 
