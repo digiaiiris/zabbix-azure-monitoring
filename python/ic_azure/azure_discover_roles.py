@@ -7,7 +7,7 @@ import json
 import re
 
 # Azure client imports
-from azure_client import AzureClient
+from ic_azure.azure_client import AzureClient
 
 
 class AzureDiscoverRoles(object):
