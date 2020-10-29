@@ -10,9 +10,10 @@ import sys
 
 # Azure imports
 import adal
+from azure.identity import CertificateCredential
 from azure.mgmt.monitor import MonitorClient
 from azure.mgmt.resource import ResourceManagementClient
-from msrestazure.azure_active_directory import AADTokenCredentials
+#from msrestazure.azure_active_directory import AADTokenCredentials
 from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
 
@@ -98,9 +99,10 @@ class AzureClient(object):
         self.access_token = management_token.get("accessToken")
 
         # Create credentials object
-        self.credentials = AADTokenCredentials(
-            management_token,
-            config["client_id"]
+        self.credentials = CertificateCredential(
+            config["tenant_id"],
+            config["client_id"],
+            config["pemfile"]
         )
 
     def client(self):
