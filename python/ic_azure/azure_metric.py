@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Python imports
 from datetime import datetime, timedelta
@@ -12,7 +12,7 @@ from msrest.exceptions import AuthenticationError, ClientRequestError, \
     TokenExpiredError, ValidationError
 
 # Azure client imports
-from azure_client import AzureClient
+from ic_azure.azure_client import AzureClient
 
 
 class AzureMetric(object):

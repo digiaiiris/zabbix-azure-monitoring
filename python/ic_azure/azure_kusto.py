@@ -1,11 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Python imports
 import json
 from argparse import ArgumentParser
 
 # Azure client imports
-from azure_client import AzureClient
+from ic_azure.azure_client import AzureClient
 
 
 def main(args=None):

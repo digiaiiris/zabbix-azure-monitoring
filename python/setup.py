@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Python imports
 import os
@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="azure-monitoring",
-    version="1.7.4",
+    version="1.7.5",
     author="Antti-Pekka Meronen",
     author_email="antti-pekka.meronen@digia.com",
     description="Monitoring scripts for Azure services",
@@ -24,10 +24,11 @@ setup(
         ]
     },
     install_requires=[
-        'adal>=1.2.1',
-        'azure-mgmt-monitor>=0.9.0',
-        'azure-mgmt-resource>=9.0.0',
-        'msrestazure>=0.6.3',
-        'requests>=2.22.0'
+        'adal>=1.2.5',
+        'azure-identity>=1.4.1',
+        'azure-mgmt-monitor>=1.0.1',
+        'azure-mgmt-resource>=15.0.0',
+        'msrestazure>=0.6.4',
+        'requests>=2.24.0'
     ]
 )
