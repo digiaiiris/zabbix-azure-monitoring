@@ -26,7 +26,7 @@ class AzureDiscoverRoles(object):
 
         # Calculate start/end times
         end_time = datetime.utcnow() - timedelta(minutes=5)
-        start_time = end_time - timedelta(minutes=1)
+        start_time = end_time - timedelta(days=1)
 
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
@@ -39,7 +39,7 @@ class AzureDiscoverRoles(object):
                 start_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 end_time.strftime('%Y-%m-%dT%H:%M:%SZ')
             ),
-            interval="PT1M",
+            interval="P1D",
             metricnames=metric,
             aggregation="Total",
             result_type="Metadata",
@@ -50,6 +50,11 @@ class AzureDiscoverRoles(object):
         for item in metrics_data.value:
             for timeserie in item.timeseries:
                 for data in timeserie.metadatavalues:
+
+                    # Don't add duplicates into roles list
+                    if data.__dict__.get("value") in rolesList:
+                        continue
+
                     rolesList.append(data.__dict__.get("value"))
 
         return rolesList
