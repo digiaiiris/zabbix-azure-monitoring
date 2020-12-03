@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="azure-monitoring",
-    version="1.7.6",
+    version="1.8.0",
     author="Antti-Pekka Meronen",
     author_email="antti-pekka.meronen@digia.com",
     description="Monitoring scripts for Azure services",
@@ -19,8 +19,8 @@ setup(
             "azure_discover_metrics = ic_azure.azure_discover_metrics:main",
             "azure_discover_roles = ic_azure.azure_discover_roles:main",
             "azure_logic_apps = ic_azure.azure_logic_apps:main",
-            "azure_kusto = ic_azure.azure_kusto:main",
-            "azure_metric = ic_azure.azure_metric:main"
+            "azure_metric = ic_azure.azure_metric:main",
+            "azure_query = ic_azure.azure_query:main"
         ]
     },
     install_requires=[

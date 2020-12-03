@@ -17,15 +17,17 @@ from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
 
 class AzureClient(object):
-    """Azure API client class."""
+    """ Azure API client class. """
 
-    def __init__(self, args, api=None, kusto=False):
-        """Initializes connection to Azure service."""
+    def __init__(self, args, api=None, queries=""):
+
+        """ Initializes connection to Azure service. """
 
         # Check if configuration file exists
         if not os.path.exists(args.config):
             raise Exception("Configuration file not found: {}".format(
-                            args.config))
+                args.config
+            ))
 
         # Read configuration file
         try:
@@ -36,42 +38,23 @@ class AzureClient(object):
                 args.config
             ))
 
-        # Set instance variables
+        # Azure specific settings
         self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
-        self.subscription_id = config["subscription_id"]
+        self.login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
 
-        # Azure API URL (for Kusto queries)
-        if api:
-            self.api = api
+        # Set instance variables
+        self.application_ids = {}  # Application IDs for Kusto queries.
+        self.queries = {}  # Kusto or Log Analytics queries
+        self.resources = {}  # Resources for easier access
+        self.subscription_id = ""  # Azure Subscription ID
+        self.timeout = 5  # Default timeout for queries
+        self.workspace_ids = {}  # Workspace IDs for Log Analytics queries
 
-        # Set application IDs array
-        self.application_ids = {}
-        if config.get("application_ids"):
-            self.application_ids = config.get("application_ids")
-
-        # Set Kusto queries array
-        if kusto:
-            self.kusto_queries = {}
-            if config.get("kusto_queries"):
-                self.kusto_queries = config.get("kusto_queries")
-
-        # Set resources array
-        self.resources = {}
-        if config.get("resources"):
-            self.resources = config.get("resources")
-
-        # Set script timeout
-        if config.get("timeout"):
-            self.timeout = config["timeout"]
-        else:
-            self.timeout = 5
-
-        # Create authentication context
-        login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
-        context = adal.AuthenticationContext("{}/{}".format(
-            login_endpoint,
-            config["tenant_id"]
-        ))
+        # Check configurations for necessary fields
+        for item in ["client_id", "pemfile", "subscription_id", "tenant_id",
+                     "thumbprint"]:
+            if not config[item]:
+                raise Exception("Configurations are missing {}.".format(item))
 
         # Check if PEM-file exists
         if not os.path.exists(config["pemfile"]):
@@ -85,6 +68,41 @@ class AzureClient(object):
             raise Exception("I/O error while reading PEM-file: {}".format(
                 config["pemfile"]
             ))
+
+        # Retrieve necessary configurations
+        self.subscription_id = config["subscription_id"]
+
+        # Azure API URL for Kusto or Log Analytics queries
+        if api:
+            self.api = api
+
+        # Retrieve application/workspace IDs
+        if config.get("application_ids"):
+            self.application_ids = config.get("application_ids")
+        if config.get("workspace_ids"):
+            self.workspace_ids = config.get("workspace_ids")
+
+        # Check configuration for queries
+        if queries == "kusto":
+            if config.get("kusto_queries"):
+                self.queries = config.get("kusto_queries")
+        elif queries == "log_analytics":
+            if config.get("log_analytics_queries"):
+                self.queries = config.get("log_analytics_queries")
+
+        # Check configuration for resources
+        if config.get("resources"):
+            self.resources = config.get("resources")
+
+        # Check configuration for timeout
+        if config.get("timeout"):
+            self.timeout = config["timeout"]
+
+        # Create authentication context
+        context = adal.AuthenticationContext("{}/{}".format(
+            self.login_endpoint,
+            config["tenant_id"]
+        ))
 
         # Acquire token with client certificate
         management_token = context.acquire_token_with_client_certificate(
@@ -105,7 +123,7 @@ class AzureClient(object):
         )
 
     def client(self):
-        """Initializes new monitoring client for Azure services."""
+        """ Initializes new monitoring client for Azure services. """
 
         self._client = None
 
@@ -118,7 +136,7 @@ class AzureClient(object):
         return self._client
 
     def resource_client(self):
-        """Initializes new resource client for Azure services."""
+        """ Initializes new resource client for Azure services. """
 
         self._resource_client = None
 
@@ -131,7 +149,7 @@ class AzureClient(object):
         return self._resource_client
 
     def query(self, method="GET", json=None, url=""):
-        """Run query to Azure REST APIs."""
+        """ Run query to Azure REST APIs. """
 
         try:
             # Define request headers
@@ -156,40 +174,34 @@ class AzureClient(object):
                     url=url
                 )
             else:
-                print("Invalid method. {}".format(method))
-                sys.exit(1)
+                Exception("Invalid method. {}".format(method))
         except requests.exceptions.RequestException as e:
-            print("There was an ambiguous exception that occurred while " +
-                  "handling your request. {}".format(e))
-            sys.exit(1)
+            Exception("There was an ambiguous exception that occurred while " +
+                      "handling your request. {}".format(e))
         except requests.exceptions.ConnectionError as e:
-            print("A Connection error occurred: {}".format(e))
-            sys.exit(1)
+            Exception("A Connection error occurred: {}".format(e))
         except requests.exceptions.HTTPError as e:
-            print("An HTTP error occurred. {}".format(e))
-            sys.exit(1)
+            Exception("An HTTP error occurred. {}".format(e))
         except requests.exceptions.URLRequired as e:
-            print("A valid URL is required to make a request. {}".format(e))
-            sys.exit(1)
+            Exception("A valid URL is required to make a request. {}".format(
+                e
+            ))
         except requests.exceptions.TooManyRedirects as e:
-            print("Too many redirects. {}".format(e))
-            sys.exit(1)
+            Exception("Too many redirects. {}".format(e))
         except requests.exceptions.ConnectTimeout as e:
-            print("The request timed out while trying to connect to the " +
-                  "remote server. {}".format(e))
-            sys.exit(1)
+            Exception("The request timed out while trying to connect to the " +
+                      "remote server. {}".format(e))
         except requests.exceptions.ReadTimeout as e:
-            print("The server did not send any data in the allotted amount " +
-                  "of time. {}".format(e))
-            sys.exit(1)
+            Exception("The server did not send any data in the allotted " +
+                      "amount of time. {}".format(e))
         except requests.exceptions.Timeout as e:
-            print("The request timed out. {}".format(e))
-            sys.exit(1)
+            Exception("The request timed out. {}".format(e))
 
         # Check HTTP status code
         if response.status_code != 200:
-            print("HTTP status code error. {}".format(response.status_code))
-            sys.exit(1)
+            Exception("HTTP status code error. {}".format(
+                response.status_code
+            ))
 
         # Return JSON response
         return response.json()
