@@ -76,17 +76,15 @@ class AzureClient(object):
         if api:
             self.api = api
 
-        # Retrieve application/workspace IDs
-        if config.get("application_ids"):
-            self.application_ids = config.get("application_ids")
-        if config.get("workspace_ids"):
-            self.workspace_ids = config.get("workspace_ids")
-
-        # Check configuration for queries
+        # Retrieve application/workspace IDs and queries
         if queries == "kusto":
+            if config.get("application_ids"):
+                self.application_ids = config.get("application_ids")
             if config.get("kusto_queries"):
                 self.queries = config.get("kusto_queries")
         elif queries == "log_analytics":
+            if config.get("workspace_ids"):
+                self.workspace_ids = config.get("workspace_ids")
             if config.get("log_analytics_queries"):
                 self.queries = config.get("log_analytics_queries")
 
