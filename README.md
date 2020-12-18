@@ -22,7 +22,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.8.0/azure-monitoring-1.8.0.tar.gz
+pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.8.1/azure-monitoring-1.8.1.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -67,12 +67,12 @@ azure.metric.timeshift[configuration_file, resource, metric_category/metric_name
 
 
 
-### Azure Kusto or Log Analytics queries
+### Azure Kusto queries
 
 Item Syntax | Description | Response |
 ----------- | ----------- | -------- |
-azure.kusto[configuration_file, application ID, query] | Run Kusto query to Azure's REST APIs | JSON
-azure.log.analytics[configuration_file, workspace ID, query] | Run Log Analytics query to Azure's REST APIs | JSON
+azure.application.insights[configuration_file, application ID, query] | Run Kusto query to Application Insights REST API | JSON
+azure.log.analytics[configuration_file, workspace ID, query] | Run Kusto query to Log Analytics REST API | JSON
 
 
 
@@ -101,20 +101,15 @@ azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name
         "<application_key_2>": "<application_id_2>",
         "<application_key_3>": "<application_id_3>"
     },
-    "kusto_queries": {
-        "<kusto_query_key_1>": "<kusto_query_1>",
-        "<kusto_query_key_2>": "<kusto_query_2>",
-        "<kusto_query_key_3>": "<kusto_query_3>"
-    },
     "workspace_ids": {
         "<workspace_key_1>": "<workspace_id_1>",
         "<workspace_key_2>": "<workspace_id_2>",
         "<workspace_key_3>": "<workspace_id_3>"
     },
-    "log_analytics_queries": {
-        "<log_analytics_query_key_1>": "<log_analytics_query_1>",
-        "<log_analytics_query_key_2>": "<log_analytics_query_2>",
-        "<log_analytics_query_key_3>": "<log_analytics_query_3>"
+    "kusto_queries": {
+        "<kusto_query_key_1>": "<kusto_query_1>",
+        "<kusto_query_key_2>": "<kusto_query_2>",
+        "<kusto_query_key_3>": "<kusto_query_3>"
     },
     "resources": {
         "<resource_key_1>": "<resource_path_1>",

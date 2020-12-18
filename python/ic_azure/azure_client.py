@@ -19,7 +19,7 @@ from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 class AzureClient(object):
     """ Azure API client class. """
 
-    def __init__(self, args, api=None, queries=""):
+    def __init__(self, args, api=None, queries=False):
 
         """ Initializes connection to Azure service. """
 
@@ -77,16 +77,13 @@ class AzureClient(object):
             self.api = api
 
         # Retrieve application/workspace IDs and queries
-        if queries == "kusto":
+        if queries:
             if config.get("application_ids"):
                 self.application_ids = config.get("application_ids")
-            if config.get("kusto_queries"):
-                self.queries = config.get("kusto_queries")
-        elif queries == "log_analytics":
             if config.get("workspace_ids"):
                 self.workspace_ids = config.get("workspace_ids")
-            if config.get("log_analytics_queries"):
-                self.queries = config.get("log_analytics_queries")
+            if config.get("kusto_queries"):
+                self.queries = config.get("kusto_queries")
 
         # Check configuration for resources
         if config.get("resources"):
