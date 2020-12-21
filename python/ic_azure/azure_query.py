@@ -5,7 +5,17 @@ import json
 from argparse import ArgumentParser
 
 # Azure client imports
-from azure_client import AzureClient
+from ic_azure.azure_client import AzureClient
+
+# Declare variables
+application_id = None
+endpoints = {
+    "application_insights": "https://api.applicationinsights.io/",
+    "log_analytics": "https://api.loganalytics.io/"
+}
+query = None
+url = None
+workspace_id = None
 
 
 def main(args=None):
@@ -13,8 +23,9 @@ def main(args=None):
         description="Run Kusto queries to Azure's REST APIs"
     )
 
-    parser.add_argument("type", choices=["kusto", "log_analytics"], type=str,
-                        help="Type of query, kusto or log_analytics.")
+    parser.add_argument("endpoint", choices=[k for k in endpoints], type=str,
+                        help="API to query for, application_insights or " +
+                        "log_analytics.")
     parser.add_argument("config", type=str, help="Path to configuration file.")
     parser.add_argument("id", type=str, help="Application ID for Kusto " +
                         "queries. Workspace ID for Log Analytics queries. " +
@@ -24,16 +35,9 @@ def main(args=None):
 
     args = parser.parse_args(args)
 
-    # Azure REST API URL
-    if args.type == "kusto":
-        api = "https://api.applicationinsights.io/"
-    elif args.type == "log_analytics":
-        api = "https://api.loganalytics.io/"
-    else:
-        raise ValueError("Invalid type argument. Use kusto or log_analytics.")
-
     # Instantiate Azure Kusto-client
-    azure_client = AzureClient(args, api=api, queries=args.type)
+    azure_client = AzureClient(args, api=endpoints[args.endpoint],
+                               queries=True)
 
     # Match predefined queries
     query = args.query
@@ -41,7 +45,7 @@ def main(args=None):
         query = azure_client.queries.get(query)
 
     # Match predefined application IDs and generate query URL
-    if args.type == "kusto":
+    if args.endpoint == "application_insights":
         application_id = args.id
 
         # Retrieve application ID using key
@@ -49,18 +53,24 @@ def main(args=None):
             application_id = azure_client.application_ids.get(application_id)
 
         # Set query URL
-        url = "{}v1/apps/{}/query".format(api, application_id)
+        url = "{}v1/apps/{}/query".format(
+            endpoints[args.endpoint],
+            application_id
+        )
 
     # Match predefined workspace IDs and generate query URL
-    elif args.type == "log_analytics":
+    elif args.endpoint == "log_analytics":
         workspace_id = args.id
 
-        # Retrieve application ID using key
+        # Retrieve workspace ID using key
         if azure_client.workspace_ids.get(workspace_id):
             workspace_id = azure_client.workspace_ids.get(workspace_id)
 
         # Set query URL
-        url = "{}v1/workspaces/{}/query".format(api, workspace_id)
+        url = "{}v1/workspaces/{}/query".format(
+            endpoints[args.endpoint],
+            workspace_id
+        )
 
     # Execute query
     response = azure_client.query(
