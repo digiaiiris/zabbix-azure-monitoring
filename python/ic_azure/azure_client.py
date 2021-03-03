@@ -23,19 +23,36 @@ class AzureClient(object):
 
         """ Initializes connection to Azure service. """
 
-        # Check if configuration file exists
-        if not os.path.exists(args.config):
-            raise Exception("Configuration file not found: {}".format(
+        # Reset configuration file path
+        config_file = ""
+
+        # Retrieve configuration file path
+        if args.config.startswith("/"):
+            config_file = args.config
+        elif os.getenv("AZURE_CONFIG_PATH") is not None:
+            config_file = os.path.join(
+                os.getenv("AZURE_CONFIG_PATH"),
                 args.config
+            )
+        else:
+            config_file = os.path.join(
+                "/etc/zabbix/scripts-config/azure-monitoring",
+                args.config
+            )
+
+        # Check if configuration file exists
+        if not os.path.exists(config_file):
+            raise Exception("Configuration file not found: {}".format(
+                config_file
             ))
 
         # Read configuration file
         try:
-            with open(args.config) as fh:
+            with open(config_file) as fh:
                 config = json.load(fh)
         except IOError:
             raise Exception("I/O error while reading configuration: {}".format(
-                args.config
+                config_file
             ))
 
         # Azure specific settings
