@@ -42,7 +42,7 @@ class AzureClient(object):
 
         # Check if configuration file exists
         if not os.path.exists(config_file):
-            raise Exception("Configuration file not found: {}".format(
+            raise ValueError("Configuration file not found: {}".format(
                 config_file
             ))
 
@@ -51,7 +51,7 @@ class AzureClient(object):
             with open(config_file) as fh:
                 config = json.load(fh)
         except IOError:
-            raise Exception("I/O error while reading configuration: {}".format(
+            raise IOError("I/O error while reading configuration: {}".format(
                 config_file
             ))
 
