@@ -32,15 +32,12 @@ class AzureClient(object):
         elif os.getenv("AZURE_CONFIG_PATH") is not None:
             config_file = os.path.join(
                 os.getenv("AZURE_CONFIG_PATH"),
-                args.config,
-                args.config + ".json"
+                args.config
             )
         else:
-            config_file = "/etc/zabbix/scripts-config/zabbix-azure-monitoring"
             config_file = os.path.join(
-                config_file,
-                args.config,
-                args.config + ".json"
+                "/etc/zabbix/scripts-config/zabbix-azure-monitoring",
+                args.config
             )
 
         # Check if configuration file exists
