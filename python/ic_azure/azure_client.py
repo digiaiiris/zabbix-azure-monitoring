@@ -163,13 +163,16 @@ class AzureClient(object):
     def query(self, method="GET", json=None, url=""):
         """ Run query to Azure REST APIs. """
 
-        try:
-            # Define request headers
-            headers = {
-                "Authorization": "Bearer {}".format(self.access_token),
-                "Content-Type": "application/json"
-            }
+        # Define request headers
+        headers = {
+            "Authorization": "Bearer {}".format(self.access_token),
+            "Content-Type": "application/json"
+        }
 
+        # Declare variables
+        response = None
+
+        try:
             # Do request
             if method == "GET":
                 response = requests.get(
@@ -186,32 +189,47 @@ class AzureClient(object):
                     url=url
                 )
             else:
-                Exception("Invalid method. {}".format(method))
+                raise Exception("Invalid method. {}".format(method))
         except requests.exceptions.RequestException as e:
-            Exception("There was an ambiguous exception that occurred while " +
-                      "handling your request. {}".format(e))
+            print("There was an ambiguous exception that occurred while " +
+                  "handling your request. {}".format(e))
+            sys.exit()
         except requests.exceptions.ConnectionError as e:
-            Exception("A Connection error occurred: {}".format(e))
+            print("A Connection error occurred: {}".format(e))
+            sys.exit()
         except requests.exceptions.HTTPError as e:
-            Exception("An HTTP error occurred. {}".format(e))
+            print("An HTTP error occurred. {}".format(e))
+            sys.exit()
         except requests.exceptions.URLRequired as e:
-            Exception("A valid URL is required to make a request. {}".format(
-                e
-            ))
+            print("A valid URL is required to make a request. {}".format(e))
+            sys.exit()
         except requests.exceptions.TooManyRedirects as e:
-            Exception("Too many redirects. {}".format(e))
+            print("Too many redirects. {}".format(e))
+            sys.exit()
         except requests.exceptions.ConnectTimeout as e:
-            Exception("The request timed out while trying to connect to the " +
-                      "remote server. {}".format(e))
+            print("The request timed out while trying to connect to the " +
+                  "remote server. {}".format(e))
+            sys.exit()
         except requests.exceptions.ReadTimeout as e:
-            Exception("The server did not send any data in the allotted " +
-                      "amount of time. {}".format(e))
+            print("The server did not send any data in the allotted amount " +
+                  "of time. {}".format(e))
+            sys.exit()
         except requests.exceptions.Timeout as e:
-            Exception("The request timed out. {}".format(e))
+            print("The request timed out. {}".format(e))
+            sys.exit()
+        except Exception as e:
+            print("Unknown exception occured: {}".format(e))
+            sys.exit()
 
-        # Check HTTP status code
+        # Check response before proceeding
+        if not response:
+            print("Unable to retrieve response.")
+            sys.exit()
+
+        # Check status code
         if response.status_code != 200:
-            Exception("HTTP status code error. {}".format(
+            raise Exception("Status code error: {}, status code: {}".format(
+                response.text,
                 response.status_code
             ))
 
