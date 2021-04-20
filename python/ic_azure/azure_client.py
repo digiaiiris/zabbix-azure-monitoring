@@ -11,7 +11,7 @@ import sys
 # Azure imports
 import adal
 from azure.identity import CertificateCredential
-from azure.mgmt.monitor import MonitorClient
+from azure.mgmt.monitor import MonitorManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
@@ -140,7 +140,7 @@ class AzureClient(object):
         self._client = None
 
         # Instantiate new monitoring client
-        self._client = MonitorClient(
+        self._client = MonitorManagementClient(
             self.credentials,
             self.subscription_id
         )
