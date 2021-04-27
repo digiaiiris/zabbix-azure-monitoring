@@ -25,8 +25,8 @@ class AzureMetric(object):
         self.timeout = azure_client.timeout
 
     # Method to retrieve metrics from Azure's resources
-    def get_metric(self, resource, metric, statistic, timegrain, timeshift,
-                   instance_name, role_name):
+    def get_metric(self, resource, metric, statistic, timegrain, filter,
+                   metric_namespace, timeshift):
 
         # Declare variables
         filter = None
@@ -58,12 +58,6 @@ class AzureMetric(object):
         else:
             raise ValueError("Unable to retrieve unit from timegrain.")
 
-        # Set instance/role name to filter
-        if instance_name:
-            filter = "cloud/roleInstance eq '{}'".format(instance_name)
-        elif role_name:
-            filter = "cloud/roleName eq '{}'".format(role_name)
-
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
             resource = self.resources.get(resource)
@@ -81,7 +75,8 @@ class AzureMetric(object):
                 aggregation=statistic,
                 result_type="Data",
                 filter=filter,
-                timeout=self.timeout
+                timeout=self.timeout,
+                metricnamespace=metric_namespace
             )
         except AuthenticationError as e:
             print("Client request failed to authenticate. {}".format(e))
@@ -129,12 +124,12 @@ def main(args=None):
                         "e.g. Average, Count, Minimum, Maximum, Total.")
     parser.add_argument("timegrain", type=str, help="Timegrain for metric, " +
                         "e.g. PT1M, PT1H, P1D.")
-    parser.add_argument("-i", "--instance-name", type=str,
-                        dest="instance_name",
-                        help="InstanceName for resource.")
-    parser.add_argument("-r", "--role-name", type=str, dest="role_name",
-                        help="RoleName for resource.")
-    parser.add_argument("--timeshift", default=0, type=int,
+    parser.add_argument("-f", "--filter", default=None, type=str,
+                        dest="filter", help="Filter for Azure query.")
+    parser.add_argument("-m", "--metric-namespace", default=None, type=str,
+                        dest="metric_namespace",
+                        help="Metric namespace for Azure query.")
+    parser.add_argument("--timeshift", default=300, type=int,
                         help="Time shift for interval.")
 
     args = parser.parse_args(args)
@@ -150,9 +145,9 @@ def main(args=None):
         args.metric,
         args.statistic,
         args.timegrain,
-        args.timeshift,
-        args.instance_name,
-        args.role_name
+        args.filter,
+        args.metric_namespace,
+        args.timeshift
     )
 
     # If value is empty or we didn't get a value, print zero. Otherwise print
