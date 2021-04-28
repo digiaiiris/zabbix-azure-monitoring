@@ -3,4 +3,5 @@ azure-identity==1.5
 azure-mgmt-monitor==2.0
 azure-mgmt-resource==16.1
 msrestazure==0.6
+PyJWT==1.7
 requests==2.25
