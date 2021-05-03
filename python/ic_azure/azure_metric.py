@@ -29,7 +29,6 @@ class AzureMetric(object):
                    metric_namespace, timeshift):
 
         # Declare variables
-        filter = None
         interval = -1
         ret_val = ""
 
