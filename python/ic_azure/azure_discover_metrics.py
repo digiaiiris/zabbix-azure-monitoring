@@ -16,7 +16,7 @@ class AzureDiscoverMetrics(object):
         self.subscription_id = azure_client.subscription_id
         self.resources = azure_client.resources
 
-    def find_services(self, resource):
+    def find_services(self, resource, metric_namespace):
         servicesList = []
 
         # Read resource from config using key
@@ -24,7 +24,10 @@ class AzureDiscoverMetrics(object):
             resource = self.resources.get(resource)
 
         # List metrics from resource
-        for metric in self._client.metric_definitions.list(resource):
+        for metric in self._client.metric_definitions.list(
+            resource,
+            metricnamespace=metric_namespace
+        ):
             servicesList.append(metric.name.value)
 
         return servicesList
@@ -37,6 +40,9 @@ def main(args=None):
 
     parser.add_argument("config", type=str, help="Path to configuration file")
     parser.add_argument("resource", type=str, help="Azure resource to use")
+    parser.add_argument("-m", "--metric-namespace", default=None, type=str,
+                        dest="metric_namespace",
+                        help="Metric namespace for Azure resource query.")
 
     args = parser.parse_args(args)
 
@@ -48,7 +54,8 @@ def main(args=None):
 
     # Find metric services using discovery
     servicesList = client.find_services(
-        args.resource
+        args.resource,
+        args.metric_namespace
     )
 
     # Create dictionary from metrics data

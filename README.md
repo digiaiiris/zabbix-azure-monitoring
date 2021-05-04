@@ -22,7 +22,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.10.1/azure-monitoring-1.10.1.tar.gz
+pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.10.2/azure-monitoring-1.10.2.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
