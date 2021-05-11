@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
 # Python imports
-import datetime
-import errno
 import json
 import os
 import requests

@@ -4,7 +4,6 @@
 from datetime import datetime, timedelta
 from argparse import ArgumentParser
 import json
-import re
 
 # Azure client imports
 from ic_azure.azure_client import AzureClient
@@ -19,7 +18,7 @@ class AzureDiscoverRoles(object):
         self.resources = azure_client.resources
 
     # Method to retrieve roles from Azure's resource
-    def get_roles(self, resource, metric, dimension):
+    def get_roles(self, resource, metric, dimension, metric_namespace):
 
         # Declare variables
         rolesList = []
@@ -43,7 +42,8 @@ class AzureDiscoverRoles(object):
             metricnames=metric,
             aggregation="Total",
             result_type="Metadata",
-            filter=dimension + " eq '*'"
+            filter=dimension + " eq '*'",
+            metricnamespace=metric_namespace
         )
 
         # Loop through metric data and retrieve instances
@@ -69,6 +69,9 @@ def main(args=None):
     parser.add_argument("resource", type=str, help="Azure resource to use")
     parser.add_argument("metric", type=str, help="Metric to obtain")
     parser.add_argument("dimension", type=str, help="Dimension to use")
+    parser.add_argument("-m", "--metric-namespace", default=None, type=str,
+                        dest="metric_namespace",
+                        help="Metric namespace for Azure resource query.")
 
     args = parser.parse_args(args)
 
@@ -82,13 +85,14 @@ def main(args=None):
     rolesList = client.get_roles(
         args.resource,
         args.metric,
-        args.dimension
+        args.dimension,
+        args.metric_namespace
     )
 
     # Create dictionary from role data
     names = []
     for item in rolesList:
-        names.append({"{#ROLE_NAME}": item})
+        names.append({"{#DIMENSION}": item, "{#ROLE_NAME}": item})
 
     # Output roles
     discovery = {"data": names}
