@@ -93,7 +93,7 @@ def main(args=None):
     # Create dictionary from role data
     names = []
     for item in rolesList:
-        names.append({"{#ROLE_NAME}": item})
+        names.append({"{#DIMENSION}": item, "{#ROLE_NAME}": item})
 
     # Output roles
     discovery = {"data": names}
