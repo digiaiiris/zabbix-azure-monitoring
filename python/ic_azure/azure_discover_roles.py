@@ -4,7 +4,6 @@
 from datetime import datetime, timedelta
 from argparse import ArgumentParser
 import json
-import re
 
 # Azure client imports
 from ic_azure.azure_client import AzureClient
