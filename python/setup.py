@@ -24,7 +24,7 @@ setup(
         ]
     },
     install_requires=[
-        'adal==1.2',
+        'adal~=1.2',
         'azure-identity==1.5',
         'azure-mgmt-monitor==2.0',
         'azure-mgmt-resource==16.1',
