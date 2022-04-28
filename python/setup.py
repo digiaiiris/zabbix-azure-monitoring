@@ -24,11 +24,12 @@ setup(
         ]
     },
     install_requires=[
-        'adal~=1.2',
-        'azure-identity==1.5',
-        'azure-mgmt-monitor==2.0',
-        'azure-mgmt-resource==16.1',
-        'msrestazure==0.6',
-        'requests==2.25'
+        'adal',
+        'azure-identity',
+        'azure-mgmt-monitor',
+        'azure-mgmt-resource',
+        'cryptography<37',  # Python 3.6 support is deprecated in version 37!
+        'msrestazure',
+        'requests'
     ]
 )
