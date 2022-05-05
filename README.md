@@ -2,7 +2,7 @@
 
 This python module provides Zabbix monitoring support for Azure resources.
 
-
+---
 
 ## Requirements
 
@@ -16,7 +16,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 - pyOpenSSL (installed automatically as dependency)
 - requests (installed automatically as dependency)
 
-
+---
 
 ## Installation
 
@@ -30,7 +30,7 @@ pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/down
 
 3. Restart the Zabbix agent.
 
-
+---
 
 ## Usage
 
@@ -96,7 +96,7 @@ azure.logic.apps[configuration_file, resource_group] | Discover Azure Logic App 
 azure.logic.apps[configuration_file, resource_group, workflow_name] | Discover Azure Logic App workflow triggers | {#TRIGGER_ID}, {#TRIGGER_NAME}
 azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Discover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
 
-
+---
 
 ## Examples
 
@@ -169,7 +169,7 @@ Average, Count, Minimum, Maximum, Total
 
 ### Possible values for timegrain-argument
 
-Value | Description
+Value | Description  |
 ----- | ------------ |
 PT1M  | One minute   |
 PT5N  | Five minutes |
