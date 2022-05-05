@@ -2,7 +2,7 @@
 
 This python module provides Zabbix monitoring support for Azure resources.
 
----
+
 
 ## Requirements
 
@@ -16,7 +16,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 - pyOpenSSL (installed automatically as dependency)
 - requests (installed automatically as dependency)
 
----
+
 
 ## Installation
 
@@ -30,7 +30,9 @@ pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/down
 
 3. Restart the Zabbix agent.
 
+
 ---
+
 
 ## Usage
 
@@ -86,6 +88,10 @@ Item Syntax | Description | Response |
 azure.application.insights[configuration_file, application ID, query] | Run Kusto query to Application Insights REST API | JSON
 azure.log.analytics[configuration_file, workspace ID, query] | Run Kusto query to Log Analytics REST API | JSON
 
+* The first parameter should be the path to the configuration file.
+* Application Insights queries need application ID as second parameter or a matching key to locate an ID from the configuration file. This can be obtained from "Azure Portal > Application Insights > API Access".
+* Log Analytics queries need workspace ID as second parameter or a matching key to locate an ID from the configuration file. This can be obtained from "Azure Portal > Log Analytics workspace > Overview".
+* The last parameter can either be a matching key to locate the query from the configuration file or the Kusto query itself.
 
 
 ### Azure Logic App queries
@@ -96,7 +102,9 @@ azure.logic.apps[configuration_file, resource_group] | Discover Azure Logic App 
 azure.logic.apps[configuration_file, resource_group, workflow_name] | Discover Azure Logic App workflow triggers | {#TRIGGER_ID}, {#TRIGGER_NAME}
 azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Discover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
 
+
 ---
+
 
 ## Examples
 
@@ -132,33 +140,35 @@ azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name
 ```
 
 
-
-### List available resources from Azure's services
+### CLI example, list available resources from Azure's services
 ```
 azure_discover_resources <path_to_config_file>
 ```
 
 
-
-### List available metrics from resource
+### CLI example, list available metrics from resource
 ```
 azure_discover_metrics <path_to_config_file> <resource>
 ```
 
 
+### CLI example, list available dimensions from resource
+```
+azure_discover_dimensions <path_to_config_file> <resource> <metric> <dimension>
+azure_discover_dimensions <path_to_config_file> <resource> <metric> <dimension> --metric-namespace <metric_namespace>
+```
 
-### List available roleInstances and roleNames from resource
+
+### CLI example, list available roleInstances and roleNames from resource
 ```
 azure_discover_roles <path_to_config_file> <resource> <metric> <dimension>
 ```
 
 
-
-### Retrieve metric from resource
+### CLI example, retrieve metric from resource
 ```
 azure_metric <path_to_config_file> <resource> <metric> <statistic> <timegrain> --timeshift <timeshift>
 ```
-
 
 
 ### Possible values for statistic-argument
@@ -176,3 +186,11 @@ PT5N  | Five minutes |
 PT1H  | One hour     |
 PT3H  | Three hours  |
 P1D   | One day      |
+
+
+
+### CLI example, Kusto queries
+```
+azure_query application_insights <path_to_config_file> <application_ID_or_matching_key> <kusto_query_or_matching_key>
+azure_query log_analytics <path_to_config_file> <workspace_ID_or_matching_key> <kusto_query_or_matching_key>
+```
