@@ -24,13 +24,13 @@ setup(
         ]
     },
     install_requires=[
-        "azure-identity==1.10",
-        "azure-mgmt-monitor==3.1",
-        "azure-mgmt-resource==21.1",
+        "azure-identity",
+        "azure-mgmt-monitor",
+        "azure-mgmt-resource",
         "cryptography<37",  # Python 3.6 support is deprecated in version 37!
-        "msal==1.17",
-        "msrest==0.6",
-        "pyOpenSSL==22.0",
-        "requests==2.27"
+        "msal",
+        "msrest",
+        "pyOpenSSL",
+        "requests"
     ]
 )
