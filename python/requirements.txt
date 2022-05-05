@@ -1,8 +1,8 @@
-azure-identity
-azure-mgmt-monitor
-azure-mgmt-resource
+azure-identity==1.10
+azure-mgmt-monitor==3.1
+azure-mgmt-resource==21.1
 cryptography<37
-msal
-msrest
-pyOpenSSL
-requests
+msal==1.17
+msrest==0.6
+pyOpenSSL==22.0
+requests==2.27
