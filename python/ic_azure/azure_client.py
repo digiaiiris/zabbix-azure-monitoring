@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # Python imports
-import json
+import json as jsonlib
 import os
 import requests
 import sys
@@ -14,10 +14,11 @@ from azure.identity import CertificateCredential
 from azure.mgmt.monitor import MonitorManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 
+
 class AzureClient:
     """ Azure API client class. """
 
-    def __init__(self, args: dict, api: str=None, queries: bool=False) -> None:
+    def __init__(self, args: dict, api: str = None, queries: bool = False) -> None:
 
         """ Initializes connection to Azure service. """
 
@@ -47,7 +48,7 @@ class AzureClient:
         # Read configuration file
         try:
             with open(config_file) as fh:
-                config = json.load(fh)
+                config = jsonlib.load(fh)
         except IOError:
             raise IOError("I/O error while reading configuration: {}".format(
                 config_file
@@ -138,7 +139,9 @@ class AzureClient:
         )
 
         # Check if response has token
-        if "access_token" not in response:
+        if "access_token" in response:
+            self.access_token = response["access_token"]
+        else:
             sys.exit("Token missing from response.")
 
         # Create credentials object
@@ -179,15 +182,15 @@ class AzureClient:
 
         # Define request headers
         headers = {
-            "Authorization": "Bearer {}".format(self.access_token),
+            "Authorization": f"Bearer {self.access_token}",
             "Content-Type": "application/json"
         }
 
         # Declare variables
         response = None
 
+        # Try to run request
         try:
-            # Do request
             if method == "GET":
                 response = requests.get(
                     headers=headers,
@@ -204,41 +207,31 @@ class AzureClient:
                 )
             else:
                 raise Exception("Invalid method. {}".format(method))
-        except requests.exceptions.RequestException as e:
-            print("There was an ambiguous exception that occurred while " +
-                  "handling your request. {}".format(e))
-            sys.exit()
-        except requests.exceptions.ConnectionError as e:
-            print("A Connection error occurred: {}".format(e))
-            sys.exit()
-        except requests.exceptions.HTTPError as e:
-            print("An HTTP error occurred. {}".format(e))
-            sys.exit()
-        except requests.exceptions.URLRequired as e:
-            print("A valid URL is required to make a request. {}".format(e))
-            sys.exit()
-        except requests.exceptions.TooManyRedirects as e:
-            print("Too many redirects. {}".format(e))
-            sys.exit()
-        except requests.exceptions.ConnectTimeout as e:
-            print("The request timed out while trying to connect to the " +
-                  "remote server. {}".format(e))
-            sys.exit()
-        except requests.exceptions.ReadTimeout as e:
-            print("The server did not send any data in the allotted amount " +
-                  "of time. {}".format(e))
-            sys.exit()
-        except requests.exceptions.Timeout as e:
-            print("The request timed out. {}".format(e))
-            sys.exit()
-        except Exception as e:
-            print("Unknown exception occured: {}".format(e))
-            sys.exit()
+            print(jsonlib.dumps(response.json()))
+        except requests.exceptions.ConnectTimeout as ex:
+            sys.exit(f"The request timed out while trying to connect to the remote server. {ex}")
+        except requests.exceptions.ReadTimeout as ex:
+            sys.exit(f"The server did not send any data in the allotted amount of time. {ex}")
+        except requests.exceptions.ConnectionError as ex:
+            sys.exit(f"A Connection error occurred: {ex}")
+        except requests.exceptions.HTTPError as ex:
+            sys.exit(f"An HTTP error occurred. {ex}")
+        except requests.exceptions.Timeout as ex:
+            sys.exit(f"The request timed out. {ex}")
+        except requests.exceptions.TooManyRedirects as ex:
+            sys.exit(f"Too many redirects. {ex}")
+        except requests.exceptions.URLRequired as ex:
+            sys.exit(f"A valid URL is required to make a request. {ex}")
+        except requests.exceptions.RequestException as ex:
+            sys.exit(
+                f"There was an ambiguous exception that occurred while handling your request. {ex}"
+            )
+        except Exception as ex:
+            sys.exit(f"Unknown exception occured: {ex}")
 
         # Check response before proceeding
         if not response:
-            print("Unable to retrieve response.")
-            sys.exit()
+            sys.exit("Unable to retrieve response.")
 
         # Check status code
         if response.status_code != 200:
