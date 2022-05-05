@@ -4,17 +4,18 @@ This python module provides Zabbix monitoring support for Azure resources.
 
 
 
-
 ## Requirements
 
 - Zabbix agent
 - pip3
-- adal (installed automatically as dependency)
 - azure-identity (installed automatically as dependency)
 - azure-mgmt-monitor (installed automatically as dependency)
 - azure-mgmt-resource (installed automatically as dependency)
-- msrestazure (installed automatically as dependency)
+- msal (installed automatically as dependency)
+- msrest (installed automatically as dependency)
+- pyOpenSSL (installed automatically as dependency)
 - requests (installed automatically as dependency)
+
 
 
 ## Installation
@@ -22,13 +23,12 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.10.3/azure-monitoring-1.10.3.tar.gz
+pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.11.0/azure-monitoring-1.11.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
 
 3. Restart the Zabbix agent.
-
 
 
 
@@ -47,6 +47,18 @@ azure.discover.resources[configuration_file] | Discover resources from Azure's s
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
 azure.discover.metrics[configuration_file, resource] | Discover metrics from Azure's resources | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+azure.discover.metrics.namespace[configuration_file, resource, metric namespace] | Discover metrics from Azure's resources using metric namespace. | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+
+
+
+### Dimension discovery
+
+Item Syntax | Description | Units |
+----------- | ----------- | ----- |
+azure.discover.dimensions[configuration_file, resource, metric_category/metric_name, dimension] | Discover dimensions from Azure's resources | {#DIMENSION} |
+azure.discover.dimensions.namespace[configuration_file, resource, metric_category/metric_name, dimension, metric namespace] | Discover dimensions from Azure's resources using metric namespace | {#DIMENSION} |
+
+* Read more about metric namespaces here: https://aka.ms/metricnamespaces
 
 
 
@@ -121,13 +133,6 @@ azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name
 
 
 
-### PEM-file thumbprint can be retrieved using OpenSSL command
-```
-openssl x509 -in <path_to_pem_file> -fingerprint -noout
-```
-
-
-
 ### List available resources from Azure's services
 ```
 azure_discover_resources <path_to_config_file>
@@ -163,4 +168,11 @@ Average, Count, Minimum, Maximum, Total
 
 
 ### Possible values for timegrain-argument
-PT1M, PT1H, P1D
+
+Value | Description
+----- | ------------ |
+PT1M  | One minute   |
+PT5N  | Five minutes |
+PT1H  | One hour     |
+PT3H  | Three hours  |
+P1D   | One day      |

@@ -36,8 +36,7 @@ def main(args=None):
     args = parser.parse_args(args)
 
     # Instantiate Azure Kusto-client
-    azure_client = AzureClient(args, api=endpoints[args.endpoint],
-                               queries=True)
+    azure_client = AzureClient(args, api=endpoints[args.endpoint], queries=True)
 
     # Match predefined queries
     query = args.query

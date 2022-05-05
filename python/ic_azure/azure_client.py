@@ -6,18 +6,18 @@ import os
 import requests
 import sys
 
-# Azure imports
-import adal
+# 3rd-party imports
+import msal
+import OpenSSL
+
 from azure.identity import CertificateCredential
 from azure.mgmt.monitor import MonitorManagementClient
 from azure.mgmt.resource import ResourceManagementClient
-from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
-
-class AzureClient(object):
+class AzureClient:
     """ Azure API client class. """
 
-    def __init__(self, args, api=None, queries=False):
+    def __init__(self, args: dict, api: str=None, queries: bool=False) -> None:
 
         """ Initializes connection to Azure service. """
 
@@ -54,8 +54,8 @@ class AzureClient(object):
             ))
 
         # Azure specific settings
-        self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
-        self.login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
+        self.api = "https://management.core.windows.net/"
+        self.login_endpoint = "https://login.microsoftonline.com"
 
         # Set instance variables
         self.application_ids = {}  # Application IDs for Kusto queries.
@@ -66,8 +66,7 @@ class AzureClient(object):
         self.workspace_ids = {}  # Workspace IDs for Log Analytics queries
 
         # Check configurations for necessary fields
-        for item in ["client_id", "pemfile", "subscription_id", "tenant_id",
-                     "thumbprint"]:
+        for item in ["client_id", "pemfile", "subscription_id", "tenant_id", "thumbprint"]:
             if not config[item]:
                 raise Exception("Configurations are missing {}.".format(item))
 
@@ -108,22 +107,39 @@ class AzureClient(object):
         if config.get("timeout"):
             self.timeout = config["timeout"]
 
-        # Create authentication context
-        context = adal.AuthenticationContext("{}/{}".format(
-            self.login_endpoint,
-            config["tenant_id"]
-        ))
+        # Check if certificate file exists
+        if not os.path.exists(config["pemfile"]):
+            sys.exit("Certificate file does not exist.")
 
-        # Acquire token with client certificate
-        management_token = context.acquire_token_with_client_certificate(
-            self.api,
+        # Read certificate file
+        with open(config["pemfile"], "rb") as fh:
+            certificate_str = fh.read()
+
+        # Load certificate and generate thumbprint
+        certificate = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate_str)
+        thumbprint = certificate.digest("sha1").decode("utf-8")
+
+        # Load private key
+        private_key = OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM, certificate_str)
+
+        # Create confidential client app instance
+        app = msal.ConfidentialClientApplication(
             config["client_id"],
-            config["key"],
-            config["thumbprint"]
+            authority=f'{self.login_endpoint}/{config["tenant_id"]}',
+            client_credential={
+                "thumbprint": thumbprint.replace(":", ""),
+                "private_key": private_key.to_cryptography_key()
+            }
         )
 
-        # Grab access token
-        self.access_token = management_token.get("accessToken")
+        # Acquire token
+        response = app.acquire_token_for_client(
+            scopes=[f"{self.api}/.default"]
+        )
+
+        # Check if response has token
+        if "access_token" not in response:
+            sys.exit("Token missing from response.")
 
         # Create credentials object
         self.credentials = CertificateCredential(
