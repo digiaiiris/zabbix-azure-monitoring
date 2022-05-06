@@ -60,6 +60,14 @@ Item Syntax | Description | Units |
 azure.discover.dimensions[configuration_file, resource, metric_category/metric_name, dimension] | Discover dimensions from Azure's resources | {#DIMENSION} |
 azure.discover.dimensions.namespace[configuration_file, resource, metric_category/metric_name, dimension, metric namespace] | Discover dimensions from Azure's resources using metric namespace | {#DIMENSION} |
 
+Some examples of namespaces are:
+
+azure.applicationinsights
+insights.container/containers
+insights.container/nodes
+insights.container/pods
+insights.container/persistentvolumes
+
 * Read more about metric namespaces here: https://aka.ms/metricnamespaces
 
 
