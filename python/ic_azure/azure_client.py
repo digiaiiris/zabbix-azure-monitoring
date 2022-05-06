@@ -207,7 +207,6 @@ class AzureClient:
                 )
             else:
                 raise Exception("Invalid method. {}".format(method))
-            print(jsonlib.dumps(response.json()))
         except requests.exceptions.ConnectTimeout as ex:
             sys.exit(f"The request timed out while trying to connect to the remote server. {ex}")
         except requests.exceptions.ReadTimeout as ex:
