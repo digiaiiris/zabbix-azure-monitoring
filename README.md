@@ -197,6 +197,14 @@ P1D   | One day      |
 
 
 
+### Timeshift-argument
+
+Timeshift argument expects the number of minutes to delay the query. In some cases the data is not
+available instantly so it's advisable to delay the data retrieval. A good starting point is to
+delay all metric queries for 5 minutes.
+
+
+
 ### CLI example, Kusto queries
 ```
 azure_query application_insights <path_to_config_file> <application_ID_or_matching_key> <kusto_query_or_matching_key>
