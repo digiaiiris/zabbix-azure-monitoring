@@ -77,30 +77,22 @@ class AzureMetric(object):
                 timeout=self.timeout,
                 metricnamespace=metric_namespace
             )
-        except AuthenticationError as e:
-            print("Client request failed to authenticate. {}".format(e))
-            sys.exit(1)
-        except ClientRequestError as e:
-            print("Client request failed. {}".format(e))
-            sys.exit(1)
-        except DeserializationError as e:
-            print("Error raised during response deserialization. {}".format(e))
-            sys.exit(1)
-        except HttpOperationError as e:
-            print("HTTP operation error. {}".format(e))
-            sys.exit(1)
-        except SerializationError as e:
-            print("Error raised during request serialization. {}".format(e))
-            sys.exit(1)
-        except TokenExpiredError as e:
-            print("OAuth token expired. {}".format(e))
-            sys.exit(1)
-        except ValidationError as e:
-            print("Request parameter validation failed. {}".format(e))
-            sys.exit(1)
-        except Exception as e:
-            print("An exception occured. {}".format(e))
-            sys.exit(1)
+        except AuthenticationError as ex:
+            sys.exit(f"Client request failed to authenticate. {ex}")
+        except ClientRequestError as ex:
+            sys.exit(f"Client request failed. {ex}")
+        except DeserializationError as ex:
+            sys.exit(f"Error raised during response deserialization. {ex}")
+        except HttpOperationError as ex:
+            sys.exit(f"HTTP operation error. {ex}")
+        except SerializationError as ex:
+            sys.exit(f"Error raised during request serialization. {ex}")
+        except TokenExpiredError as ex:
+            sys.exit(f"OAuth token expired. {ex}")
+        except ValidationError as ex:
+            sys.exit(f"Request parameter validation failed. {ex}")
+        except Exception as ex:
+            sys.exit(f"An exception occured. {ex}")
 
         # Loop through metric data and retrieve relevant value
         for item in metrics_data.value:

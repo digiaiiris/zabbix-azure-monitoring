@@ -4,7 +4,7 @@ tests := $(wildcard tests/*.py)
 all: clean checkstyle htmlcov dist
 
 checkstyle: $(scripts) $(tests) setup.py
-	find . -name "*.py" -exec pycodestyle \{\} \; | tee checkstyle
+	find . -name "*.py" -exec pycodestyle --max-line-length=100 \{\} \; | tee checkstyle
 
 .coverage: $(scripts) $(tests)
 	coverage run --source ic_azure -m unittest discover -s tests/

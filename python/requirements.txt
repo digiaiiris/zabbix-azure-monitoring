@@ -1,7 +1,8 @@
-adal
 azure-identity
 azure-mgmt-monitor
 azure-mgmt-resource
 cryptography<37
-msrestazure
+msal
+msrest
+pyOpenSSL
 requests

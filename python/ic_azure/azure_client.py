@@ -1,23 +1,24 @@
 #!/usr/bin/python3
 
 # Python imports
-import json
+import json as jsonlib
 import os
 import requests
 import sys
 
-# Azure imports
-import adal
+# 3rd-party imports
+import msal
+import OpenSSL
+
 from azure.identity import CertificateCredential
 from azure.mgmt.monitor import MonitorManagementClient
 from azure.mgmt.resource import ResourceManagementClient
-from msrestazure.azure_cloud import AZURE_PUBLIC_CLOUD
 
 
-class AzureClient(object):
+class AzureClient:
     """ Azure API client class. """
 
-    def __init__(self, args, api=None, queries=False):
+    def __init__(self, args: dict, api: str = None, queries: bool = False) -> None:
 
         """ Initializes connection to Azure service. """
 
@@ -47,15 +48,15 @@ class AzureClient(object):
         # Read configuration file
         try:
             with open(config_file) as fh:
-                config = json.load(fh)
+                config = jsonlib.load(fh)
         except IOError:
             raise IOError("I/O error while reading configuration: {}".format(
                 config_file
             ))
 
         # Azure specific settings
-        self.api = AZURE_PUBLIC_CLOUD.endpoints.active_directory_resource_id
-        self.login_endpoint = AZURE_PUBLIC_CLOUD.endpoints.active_directory
+        self.api = "https://management.core.windows.net/"
+        self.login_endpoint = "https://login.microsoftonline.com"
 
         # Set instance variables
         self.application_ids = {}  # Application IDs for Kusto queries.
@@ -66,8 +67,7 @@ class AzureClient(object):
         self.workspace_ids = {}  # Workspace IDs for Log Analytics queries
 
         # Check configurations for necessary fields
-        for item in ["client_id", "pemfile", "subscription_id", "tenant_id",
-                     "thumbprint"]:
+        for item in ["client_id", "pemfile", "subscription_id", "tenant_id", "thumbprint"]:
             if not config[item]:
                 raise Exception("Configurations are missing {}.".format(item))
 
@@ -108,22 +108,41 @@ class AzureClient(object):
         if config.get("timeout"):
             self.timeout = config["timeout"]
 
-        # Create authentication context
-        context = adal.AuthenticationContext("{}/{}".format(
-            self.login_endpoint,
-            config["tenant_id"]
-        ))
+        # Check if certificate file exists
+        if not os.path.exists(config["pemfile"]):
+            sys.exit("Certificate file does not exist.")
 
-        # Acquire token with client certificate
-        management_token = context.acquire_token_with_client_certificate(
-            self.api,
+        # Read certificate file
+        with open(config["pemfile"], "rb") as fh:
+            certificate_str = fh.read()
+
+        # Load certificate and generate thumbprint
+        certificate = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate_str)
+        thumbprint = certificate.digest("sha1").decode("utf-8")
+
+        # Load private key
+        private_key = OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM, certificate_str)
+
+        # Create confidential client app instance
+        app = msal.ConfidentialClientApplication(
             config["client_id"],
-            config["key"],
-            config["thumbprint"]
+            authority=f'{self.login_endpoint}/{config["tenant_id"]}',
+            client_credential={
+                "thumbprint": thumbprint.replace(":", ""),
+                "private_key": private_key.to_cryptography_key()
+            }
         )
 
-        # Grab access token
-        self.access_token = management_token.get("accessToken")
+        # Acquire token
+        response = app.acquire_token_for_client(
+            scopes=[f"{self.api}/.default"]
+        )
+
+        # Check if response has token
+        if "access_token" in response:
+            self.access_token = response["access_token"]
+        else:
+            sys.exit("Token missing from response.")
 
         # Create credentials object
         self.credentials = CertificateCredential(
@@ -163,15 +182,15 @@ class AzureClient(object):
 
         # Define request headers
         headers = {
-            "Authorization": "Bearer {}".format(self.access_token),
+            "Authorization": f"Bearer {self.access_token}",
             "Content-Type": "application/json"
         }
 
         # Declare variables
         response = None
 
+        # Try to run request
         try:
-            # Do request
             if method == "GET":
                 response = requests.get(
                     headers=headers,
@@ -188,41 +207,30 @@ class AzureClient(object):
                 )
             else:
                 raise Exception("Invalid method. {}".format(method))
-        except requests.exceptions.RequestException as e:
-            print("There was an ambiguous exception that occurred while " +
-                  "handling your request. {}".format(e))
-            sys.exit()
-        except requests.exceptions.ConnectionError as e:
-            print("A Connection error occurred: {}".format(e))
-            sys.exit()
-        except requests.exceptions.HTTPError as e:
-            print("An HTTP error occurred. {}".format(e))
-            sys.exit()
-        except requests.exceptions.URLRequired as e:
-            print("A valid URL is required to make a request. {}".format(e))
-            sys.exit()
-        except requests.exceptions.TooManyRedirects as e:
-            print("Too many redirects. {}".format(e))
-            sys.exit()
-        except requests.exceptions.ConnectTimeout as e:
-            print("The request timed out while trying to connect to the " +
-                  "remote server. {}".format(e))
-            sys.exit()
-        except requests.exceptions.ReadTimeout as e:
-            print("The server did not send any data in the allotted amount " +
-                  "of time. {}".format(e))
-            sys.exit()
-        except requests.exceptions.Timeout as e:
-            print("The request timed out. {}".format(e))
-            sys.exit()
-        except Exception as e:
-            print("Unknown exception occured: {}".format(e))
-            sys.exit()
+        except requests.exceptions.ConnectTimeout as ex:
+            sys.exit(f"The request timed out while trying to connect to the remote server. {ex}")
+        except requests.exceptions.ReadTimeout as ex:
+            sys.exit(f"The server did not send any data in the allotted amount of time. {ex}")
+        except requests.exceptions.ConnectionError as ex:
+            sys.exit(f"A Connection error occurred: {ex}")
+        except requests.exceptions.HTTPError as ex:
+            sys.exit(f"An HTTP error occurred. {ex}")
+        except requests.exceptions.Timeout as ex:
+            sys.exit(f"The request timed out. {ex}")
+        except requests.exceptions.TooManyRedirects as ex:
+            sys.exit(f"Too many redirects. {ex}")
+        except requests.exceptions.URLRequired as ex:
+            sys.exit(f"A valid URL is required to make a request. {ex}")
+        except requests.exceptions.RequestException as ex:
+            sys.exit(
+                f"There was an ambiguous exception that occurred while handling your request. {ex}"
+            )
+        except Exception as ex:
+            sys.exit(f"Unknown exception occured: {ex}")
 
         # Check response before proceeding
         if not response:
-            print("Unable to retrieve response.")
-            sys.exit()
+            sys.exit("Unable to retrieve response.")
 
         # Check status code
         if response.status_code != 200:

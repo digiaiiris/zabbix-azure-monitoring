@@ -2,6 +2,7 @@
 
 # Python imports
 import json
+import os
 from argparse import ArgumentParser
 
 # Azure client imports

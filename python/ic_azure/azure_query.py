@@ -24,20 +24,17 @@ def main(args=None):
     )
 
     parser.add_argument("endpoint", choices=[k for k in endpoints], type=str,
-                        help="API to query for, application_insights or " +
-                        "log_analytics.")
+                        help="API to query for, application_insights or log_analytics.")
     parser.add_argument("config", type=str, help="Path to configuration file.")
-    parser.add_argument("id", type=str, help="Application ID for Kusto " +
-                        "queries. Workspace ID for Log Analytics queries. " +
-                        "Key to match predefined IDs.")
-    parser.add_argument("query", type=str, help="Query to run or key to " +
-                        "match predefined query.")
+    parser.add_argument("id", type=str, help="Application ID for Application Insight query. " +
+                                             "Workspace ID for Log Analytics query. " +
+                                             "Key to match predefined IDs.")
+    parser.add_argument("query", type=str, help="Query to run or key to match predefined query.")
 
     args = parser.parse_args(args)
 
     # Instantiate Azure Kusto-client
-    azure_client = AzureClient(args, api=endpoints[args.endpoint],
-                               queries=True)
+    azure_client = AzureClient(args, api=endpoints[args.endpoint], queries=True)
 
     # Match predefined queries
     query = args.query

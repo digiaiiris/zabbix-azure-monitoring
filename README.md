@@ -4,17 +4,18 @@ This python module provides Zabbix monitoring support for Azure resources.
 
 
 
-
 ## Requirements
 
 - Zabbix agent
 - pip3
-- adal (installed automatically as dependency)
 - azure-identity (installed automatically as dependency)
 - azure-mgmt-monitor (installed automatically as dependency)
 - azure-mgmt-resource (installed automatically as dependency)
-- msrestazure (installed automatically as dependency)
+- msal (installed automatically as dependency)
+- msrest (installed automatically as dependency)
+- pyOpenSSL (installed automatically as dependency)
 - requests (installed automatically as dependency)
+
 
 
 ## Installation
@@ -22,7 +23,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 1. Install the python module using pip.
 
 ```
-pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.10.3/azure-monitoring-1.10.3.tar.gz
+pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.11.0/azure-monitoring-1.11.0.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
@@ -30,6 +31,7 @@ pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/down
 3. Restart the Zabbix agent.
 
 
+---
 
 
 ## Usage
@@ -47,6 +49,26 @@ azure.discover.resources[configuration_file] | Discover resources from Azure's s
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
 azure.discover.metrics[configuration_file, resource] | Discover metrics from Azure's resources | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+azure.discover.metrics.namespace[configuration_file, resource, metric namespace] | Discover metrics from Azure's resources using metric namespace. | {#METRIC_CATEGORY}, {#METRIC_NAME} |
+
+
+
+### Dimension discovery
+
+Item Syntax | Description | Units |
+----------- | ----------- | ----- |
+azure.discover.dimensions[configuration_file, resource, metric_category/metric_name, dimension] | Discover dimensions from Azure's resources | {#DIMENSION} |
+azure.discover.dimensions.namespace[configuration_file, resource, metric_category/metric_name, dimension, metric namespace] | Discover dimensions from Azure's resources using metric namespace | {#DIMENSION} |
+
+Some examples of namespaces are:
+
+azure.applicationinsights
+insights.container/containers
+insights.container/nodes
+insights.container/pods
+insights.container/persistentvolumes
+
+* Read more about metric namespaces here: https://aka.ms/metricnamespaces
 
 
 
@@ -74,6 +96,10 @@ Item Syntax | Description | Response |
 azure.application.insights[configuration_file, application ID, query] | Run Kusto query to Application Insights REST API | JSON
 azure.log.analytics[configuration_file, workspace ID, query] | Run Kusto query to Log Analytics REST API | JSON
 
+* The first parameter should be the path to the configuration file.
+* Application Insights queries need application ID as second parameter or a matching key to locate an ID from the configuration file. This can be obtained from "Azure Portal > Application Insights > API Access".
+* Log Analytics queries need workspace ID as second parameter or a matching key to locate an ID from the configuration file. This can be obtained from "Azure Portal > Log Analytics workspace > Overview".
+* The last parameter can either be a matching key to locate the query from the configuration file or the Kusto query itself.
 
 
 ### Azure Logic App queries
@@ -84,6 +110,8 @@ azure.logic.apps[configuration_file, resource_group] | Discover Azure Logic App 
 azure.logic.apps[configuration_file, resource_group, workflow_name] | Discover Azure Logic App workflow triggers | {#TRIGGER_ID}, {#TRIGGER_NAME}
 azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Discover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
 
+
+---
 
 
 ## Examples
@@ -120,40 +148,35 @@ azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name
 ```
 
 
-
-### PEM-file thumbprint can be retrieved using OpenSSL command
-```
-openssl x509 -in <path_to_pem_file> -fingerprint -noout
-```
-
-
-
-### List available resources from Azure's services
+### CLI example, list available resources from Azure's services
 ```
 azure_discover_resources <path_to_config_file>
 ```
 
 
-
-### List available metrics from resource
+### CLI example, list available metrics from resource
 ```
 azure_discover_metrics <path_to_config_file> <resource>
 ```
 
 
+### CLI example, list available dimensions from resource
+```
+azure_discover_dimensions <path_to_config_file> <resource> <metric> <dimension>
+azure_discover_dimensions <path_to_config_file> <resource> <metric> <dimension> --metric-namespace <metric_namespace>
+```
 
-### List available roleInstances and roleNames from resource
+
+### CLI example, list available roleInstances and roleNames from resource
 ```
 azure_discover_roles <path_to_config_file> <resource> <metric> <dimension>
 ```
 
 
-
-### Retrieve metric from resource
+### CLI example, retrieve metric from resource
 ```
 azure_metric <path_to_config_file> <resource> <metric> <statistic> <timegrain> --timeshift <timeshift>
 ```
-
 
 
 ### Possible values for statistic-argument
@@ -163,4 +186,27 @@ Average, Count, Minimum, Maximum, Total
 
 
 ### Possible values for timegrain-argument
-PT1M, PT1H, P1D
+
+Value | Description  |
+----- | ------------ |
+PT1M  | One minute   |
+PT5N  | Five minutes |
+PT1H  | One hour     |
+PT3H  | Three hours  |
+P1D   | One day      |
+
+
+
+### Timeshift-argument
+
+Timeshift argument expects the number of minutes to delay the query. In some cases the data is not
+available instantly so it's advisable to delay the data retrieval. A good starting point is to
+delay all metric queries for 5 minutes.
+
+
+
+### CLI example, Kusto queries
+```
+azure_query application_insights <path_to_config_file> <application_ID_or_matching_key> <kusto_query_or_matching_key>
+azure_query log_analytics <path_to_config_file> <workspace_ID_or_matching_key> <kusto_query_or_matching_key>
+```

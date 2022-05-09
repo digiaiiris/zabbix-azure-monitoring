@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="azure-monitoring",
-    version="1.10.3",
+    version="1.11.0",
     author="Antti-Pekka Meronen",
     author_email="antti-pekka.meronen@digia.com",
     description="Monitoring scripts for Azure services",
@@ -24,12 +24,13 @@ setup(
         ]
     },
     install_requires=[
-        'adal',
-        'azure-identity',
-        'azure-mgmt-monitor',
-        'azure-mgmt-resource',
-        'cryptography<37',  # Python 3.6 support is deprecated in version 37!
-        'msrestazure',
-        'requests'
+        "azure-identity",
+        "azure-mgmt-monitor",
+        "azure-mgmt-resource",
+        "cryptography<37",  # Python 3.6 support is deprecated in version 37!
+        "msal",
+        "msrest",
+        "pyOpenSSL",
+        "requests"
     ]
 )
