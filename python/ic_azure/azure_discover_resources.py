@@ -16,13 +16,33 @@ class AzureDiscoverResources(object):
         self._client = azure_client.resource_client()
 
     def find_resources(self):
-        resourceList = []
 
-        # List resources using client
+        # Declare variables
+        resources = []
+
+        # List resources and tags using client
         for resource in self._client.resources.list():
-            resourceList.append(resource.id)
 
-        return resourceList
+            # Split resource ID
+            id_splitted = resource.id.split("/")
+
+            # Apply resource data
+            resource_data = {
+                "{#RESOURCE}": resource.id,
+                "{#RESOURCE_GROUP}": id_splitted[4],
+                "{#RESOURCE_TYPE}": id_splitted[6] + "/" + id_splitted[7],
+                "{#RESOURCE_NAME}": id_splitted[8]
+            }
+
+            # Additionally return possible tags
+            if resource.tags:
+                for tag in resource.tags:
+                    resource_data["{#TAG_" + tag.upper() + "}"] = resource.tags[tag]
+
+            # Set resource data into resources list
+            resources.append(resource_data)
+
+        return resources
 
 
 def main(args=None):
@@ -41,21 +61,10 @@ def main(args=None):
     resource_client = AzureDiscoverResources(azure_resource_client)
 
     # Find resources using discovery
-    resourceList = resource_client.find_resources()
-
-    # Create dictionary from resource data
-    names = []
-    for item in resourceList:
-        names.append({
-            "{#RESOURCE}": item,
-            "{#RESOURCE_GROUP}": item.split("/")[4],
-            "{#RESOURCE_TYPE}": item.split("/")[6] + "/" + item.split("/")[7],
-            "{#RESOURCE_NAME}": item.split("/")[8]
-        })
+    resources = resource_client.find_resources()
 
     # Output resources
-    discovery = {"data": names}
-    print(json.dumps(discovery))
+    print(json.dumps({"data": resources}))
 
 
 if __name__ == "__main__":
