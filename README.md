@@ -190,7 +190,7 @@ Average, Count, Minimum, Maximum, Total
 Value | Description  |
 ----- | ------------ |
 PT1M  | One minute   |
-PT5N  | Five minutes |
+PT5M  | Five minutes |
 PT1H  | One hour     |
 PT3H  | Three hours  |
 P1D   | One day      |
