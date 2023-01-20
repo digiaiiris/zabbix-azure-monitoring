@@ -228,16 +228,16 @@ class AzureClient:
         except Exception as ex:
             sys.exit(f"Unknown exception occured: {ex}")
 
-        # Check response before proceeding
-        if not response:
-            sys.exit("Unable to retrieve response.")
-
         # Check status code
         if response.status_code != 200:
             raise Exception("Status code error: {}, status code: {}".format(
                 response.text,
                 response.status_code
             ))
+
+        # Check response before proceeding
+        if not response:
+            sys.exit("Unable to retrieve response.")
 
         # Return JSON response
         return response.json()
