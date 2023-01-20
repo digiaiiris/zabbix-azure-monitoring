@@ -229,11 +229,12 @@ class AzureClient:
             sys.exit(f"Unknown exception occured: {ex}")
 
         # Check status code
-        if response.status_code != 200:
-            raise Exception("Status code error: {}, status code: {}".format(
-                response.text,
-                response.status_code
-            ))
+        if hasattr(response, "status_code"):
+            if response.status_code != 200:
+                raise Exception("Status code error: {}, status code: {}".format(
+                    response.text,
+                    response.status_code
+                ))
 
         # Check response before proceeding
         if not response:
