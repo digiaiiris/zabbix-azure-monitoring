@@ -60,13 +60,26 @@ Item Syntax | Description | Units |
 azure.discover.dimensions[configuration_file, resource, metric_category/metric_name, dimension] | Discover dimensions from Azure's resources | {#DIMENSION} |
 azure.discover.dimensions.namespace[configuration_file, resource, metric_category/metric_name, dimension, metric namespace] | Discover dimensions from Azure's resources using metric namespace | {#DIMENSION} |
 
+
+Some examples of dimensions are:
+
+- request/performanceBucket
+- request/resultCode
+- operation/synthetic
+- cloud/roleInstance
+- request/success
+- cloud/roleName
+
+* Read more about metric dimensions here: https://learn.microsoft.com/en-us/azure/azure-monitor/essentials/metrics-custom-overview?toc=%2Fazure%2Fazure-monitor%2Ftoc.json#dimension-keys
+
+
 Some examples of namespaces are:
 
-azure.applicationinsights
-insights.container/containers
-insights.container/nodes
-insights.container/pods
-insights.container/persistentvolumes
+- azure.applicationinsights
+- insights.container/containers
+- insights.container/nodes
+- insights.container/pods
+- insights.container/persistentvolumes
 
 * Read more about metric namespaces here: https://aka.ms/metricnamespaces
 
@@ -84,8 +97,21 @@ azure.discover.roles[configuration_file, resource, metric_category/metric_name, 
 
 Item Syntax | Description | Units |
 ----------- | ----------- | ----- |
-azure.metric[configuration_file, resource, metric_category/metric_name, statistic, timegrain] | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
-azure.metric.timeshift[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift] | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift (optional)] | Retrieve metrics from Azure's resources | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.filter[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a filter. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.instance[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a filter for "Instance" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.roleinstance[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a filter for "cloud/roleInstance" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.rolename[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a filter for "cloud/roleName" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.phase[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a filter for "phase" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.status[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a filter for "Status" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.namespace[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, namespace, timeshift (optional)] | Retrieve metrics from Azure's resources using a namespace. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.namespace.controllername[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a namespace and a filter for "controllerName" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.namespace.phase[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a namespace and a filter for "phase" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.namespace.status[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, filter, timeshift (optional)] | Retrieve metrics from Azure's resources using a namespace and a filter for "Status" dimension. | Count, Percent, Milliseconds, Seconds, etc.
+azure.metric.namespace.filter[configuration_file, resource, metric_category/metric_name, statistic, timegrain, timeshift, namespace, timeshift (optional)] | Retrieve metrics from Azure's resources using a namespace and filter. | Count, Percent, Milliseconds, Seconds, etc.
+
+* Filter parameter can be used to filter out using dimensions, e.g. "cloud/roleName eq '<role_name>'".
+* Namespace parameter can be used to filter out using namespaces, e.g. "insights.container/nodes".
 
 
 
@@ -102,6 +128,7 @@ azure.log.analytics[configuration_file, workspace ID, query] | Run Kusto query t
 * The last parameter can either be a matching key to locate the query from the configuration file or the Kusto query itself.
 
 
+
 ### Azure Logic App queries
 
 Item Syntax | Description | Response |
@@ -111,7 +138,9 @@ azure.logic.apps[configuration_file, resource_group, workflow_name] | Discover A
 azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Discover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
 
 
+
 ---
+
 
 
 ## Examples
@@ -148,16 +177,19 @@ azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name
 ```
 
 
+
 ### CLI example, list available resources from Azure's services
 ```
 azure_discover_resources <path_to_config_file>
 ```
 
 
+
 ### CLI example, list available metrics from resource
 ```
 azure_discover_metrics <path_to_config_file> <resource>
 ```
+
 
 
 ### CLI example, list available dimensions from resource
@@ -167,16 +199,19 @@ azure_discover_dimensions <path_to_config_file> <resource> <metric> <dimension> 
 ```
 
 
+
 ### CLI example, list available roleInstances and roleNames from resource
 ```
 azure_discover_roles <path_to_config_file> <resource> <metric> <dimension>
 ```
 
 
+
 ### CLI example, retrieve metric from resource
 ```
 azure_metric <path_to_config_file> <resource> <metric> <statistic> <timegrain> --timeshift <timeshift>
 ```
+
 
 
 ### Possible values for statistic-argument
