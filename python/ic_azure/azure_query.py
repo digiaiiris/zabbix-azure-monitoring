@@ -5,7 +5,7 @@ import json
 from argparse import ArgumentParser
 
 # Azure client imports
-from ic_azure.azure_client import AzureClient
+from azure_client import AzureClient
 
 # Declare variables
 application_id = None
@@ -27,11 +27,11 @@ def main(args=None):
     parser.add_argument("endpoint", choices=[k for k in endpoints], type=str,
                         help="API to query for, application_insights, log_analytics or resource_graph.")
     parser.add_argument("config", type=str, help="Path to configuration file.")
-    parser.add_argument("id", type=str, help="Application ID for Application Insight query. " +
+    parser.add_argument("query", type=str, help="Query to run or key to match predefined query.")
+    parser.add_argument("--id", type=str, help="Application ID for Application Insight query. " +
                                              "Workspace ID for Log Analytics query. " +
                                              "Empty for Resource Graph query. " +
                                              "Key to match predefined IDs.")
-    parser.add_argument("query", type=str, help="Query to run or key to match predefined query.")
 
     args = parser.parse_args(args)
 
