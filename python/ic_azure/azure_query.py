@@ -12,7 +12,7 @@ application_id = None
 endpoints = {
     "application_insights": "https://api.applicationinsights.io/",
     "log_analytics": "https://api.loganalytics.io/",
-    "resource_graph": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources"
+    "resource_graph": "https://management.azure.com/"
 }
 query = None
 url = None
@@ -74,7 +74,7 @@ def main(args=None):
     # Query Resource graph
     elif args.endpoint == "resource_graph":
         # Set query URL
-        url = "{}?api-version=2021-03-01".format(
+        url = "{}providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01".format(
             endpoints[args.endpoint]
         )
 
