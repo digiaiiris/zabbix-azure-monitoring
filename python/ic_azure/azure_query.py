@@ -11,7 +11,8 @@ from ic_azure.azure_client import AzureClient
 application_id = None
 endpoints = {
     "application_insights": "https://api.applicationinsights.io/",
-    "log_analytics": "https://api.loganalytics.io/"
+    "log_analytics": "https://api.loganalytics.io/",
+    "resource_graph": "https://management.azure.com/"
 }
 query = None
 url = None
@@ -24,12 +25,13 @@ def main(args=None):
     )
 
     parser.add_argument("endpoint", choices=[k for k in endpoints], type=str,
-                        help="API to query for, application_insights or log_analytics.")
+                        help="API to query for, application_insights, log_analytics or resource_graph.")
     parser.add_argument("config", type=str, help="Path to configuration file.")
-    parser.add_argument("id", type=str, help="Application ID for Application Insight query. " +
-                                             "Workspace ID for Log Analytics query. " +
-                                             "Key to match predefined IDs.")
     parser.add_argument("query", type=str, help="Query to run or key to match predefined query.")
+    parser.add_argument("--id", type=str, help="Application ID for Application Insight query. " +
+                                             "Workspace ID for Log Analytics query. " +
+                                             "Empty for Resource Graph query. " +
+                                             "Key to match predefined IDs.")
 
     args = parser.parse_args(args)
 
@@ -67,6 +69,13 @@ def main(args=None):
         url = "{}v1/workspaces/{}/query".format(
             endpoints[args.endpoint],
             workspace_id
+        )
+
+    # Query Resource graph
+    elif args.endpoint == "resource_graph":
+        # Set query URL
+        url = "{}providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01".format(
+            endpoints[args.endpoint]
         )
 
     # Execute query
