@@ -1,8 +1,9 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 # Python imports
 import json
 import os
+import re
 from argparse import ArgumentParser
 
 # Azure client imports
@@ -23,15 +24,14 @@ class AzureDiscoverResources(object):
         # List resources and tags using client
         for resource in self._client.resources.list():
 
-            # Split resource ID
-            id_splitted = resource.id.split("/")
+            type_match = re.search('providers(\/[^\/]+){1,4}', resource.id).group(0)
 
             # Apply resource data
             resource_data = {
-                "{#RESOURCE}": resource.id,
-                "{#RESOURCE_GROUP}": id_splitted[4],
-                "{#RESOURCE_TYPE}": id_splitted[6] + "/" + id_splitted[7],
-                "{#RESOURCE_NAME}": id_splitted[8]
+            "{#RESOURCE}": resource.id,
+            "{#RESOURCE_GROUP}": re.search('resourceGroups\/([^\/]*)', resource.id).group(1),
+            "{#RESOURCE_TYPE}": re.sub('providers\/([^\/]+\/[^\/]+)\/[^\/]+(\/[^\/]*)?',r'\1\2', type_match),
+            "{#RESOURCE_NAME}": re.search('([^\/]*)$', resource.id).group(1)
             }
 
             # Additionally return possible tags
