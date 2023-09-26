@@ -24,15 +24,18 @@ class AzureDiscoverResources(object):
         # List resources and tags using client
         for resource in self._client.resources.list():
 
-            type_match = re.search('providers(\/[^\/]+){1,4}', resource.id).group(0)
+            id_splitted = resource.id.split("/")
 
             # Apply resource data
             resource_data = {
-            "{#RESOURCE}": resource.id,
-            "{#RESOURCE_GROUP}": re.search('resourceGroups\/([^\/]*)', resource.id).group(1),
-            "{#RESOURCE_TYPE}": re.sub('providers\/([^\/]+\/[^\/]+)\/[^\/]+(\/[^\/]*)?',r'\1\2', type_match),
-            "{#RESOURCE_NAME}": re.search('([^\/]*)$', resource.id).group(1)
+                "{#RESOURCE}": resource.id,
+                "{#RESOURCE_GROUP}": id_splitted[4],
+                "{#RESOURCE_TYPE}": id_splitted[6] + "/" + id_splitted[7],
+                "{#RESOURCE_NAME}": id_splitted[-1]
             }
+
+            if len(id_splitted) > 9:
+                resource_data["{#RESOURCE_TYPE}"] += "/" + id_splitted[9]
 
             # Additionally return possible tags
             if resource.tags:
