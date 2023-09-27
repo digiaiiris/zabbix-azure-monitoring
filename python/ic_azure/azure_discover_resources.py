@@ -1,8 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python
 
 # Python imports
 import json
-import os
 from argparse import ArgumentParser
 
 # Azure client imports
@@ -23,7 +22,6 @@ class AzureDiscoverResources(object):
         # List resources and tags using client
         for resource in self._client.resources.list():
 
-            # Split resource ID
             id_splitted = resource.id.split("/")
 
             # Apply resource data
@@ -31,8 +29,11 @@ class AzureDiscoverResources(object):
                 "{#RESOURCE}": resource.id,
                 "{#RESOURCE_GROUP}": id_splitted[4],
                 "{#RESOURCE_TYPE}": id_splitted[6] + "/" + id_splitted[7],
-                "{#RESOURCE_NAME}": id_splitted[8]
+                "{#RESOURCE_NAME}": id_splitted[-1]
             }
+
+            if len(id_splitted) > 9:
+                resource_data["{#RESOURCE_TYPE}"] += "/" + id_splitted[9]
 
             # Additionally return possible tags
             if resource.tags:
