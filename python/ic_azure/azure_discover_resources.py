@@ -2,8 +2,6 @@
 
 # Python imports
 import json
-import os
-import re
 from argparse import ArgumentParser
 
 # Azure client imports
