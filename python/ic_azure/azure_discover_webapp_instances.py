@@ -18,7 +18,7 @@ def main(args=None):
     )
 
     parser.add_argument("config", type=str, help="Path to configuration file")
-    parser.add_argument("resource-group", type=str,
+    parser.add_argument("resource_group", type=str,
                         help="Resource group name.")
     parser.add_argument("webapp", type=str, help="Web App name")
     args = parser.parse_args(args)
@@ -32,7 +32,7 @@ def main(args=None):
     url += "/resourceGroups/{}".format(args.resource_group)
     url += "/providers/Microsoft.Web/sites"
     url += "/{}".format(args.webapp)
-    url += "/instances?api-version={}".format(args.version)
+    url += "/instances?api-version=2022-03-01"
 
     # Run query to API
     response = azure_client.query(method="GET", url=url)
