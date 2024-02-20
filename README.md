@@ -137,6 +137,11 @@ azure.logic.apps[configuration_file, resource_group] | Discover Azure Logic App 
 azure.logic.apps[configuration_file, resource_group, workflow_name] | Discover Azure Logic App workflow triggers | {#TRIGGER_ID}, {#TRIGGER_NAME}
 azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Discover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
 
+### Azure Web App instance discovery
+
+Item Syntax | Description | Response |
+----------- | ----------- | -------- |
+azure.webapp.discover.instances[configuration_file, resource_group, webapp_name] | Discover Web App Scale-Out Instances | {#MACHINE_NAME}, {#STATE}, {#STATUS_URL}, {#HEALTHCHECK_URL}
 
 
 ---
