@@ -35,7 +35,7 @@ class AzureClient:
             )
         else:
             config_file = os.path.join(
-                "/etc/zabbix/scripts-config/zabbix-azure-monitoring",
+                "/opt/digiaiiris/zabbix-agent/scripts-config/zabbix-azure-monitoring",
                 args.config
             )
 
