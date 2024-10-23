@@ -260,6 +260,7 @@ delay all metric queries for 5 minutes.
 
 ### CLI example, Kusto queries
 ```
-azure_query application_insights <path_to_config_file> <application_ID_or_matching_key> <kusto_query_or_matching_key>
-azure_query log_analytics <path_to_config_file> <workspace_ID_or_matching_key> <kusto_query_or_matching_key>
+source /opt/digiaiiris/virtualenv/zabbix-azure-monitoring/bin/activate
+azure_query --id <application_ID_or_matching_key> application_insights <path_to_config_file> <kusto_query_or_matching_key>
+azure_query --id <workspace_ID_or_matching_key> log_analytics <path_to_config_file> <kusto_query_or_matching_key>
 ```
