@@ -25,7 +25,7 @@ class AzureDiscoverRoles(object):
 
         # Calculate start/end times
         end_time = datetime.utcnow() - timedelta(minutes=5)
-        start_time = end_time - timedelta(days=1)
+        start_time = end_time - timedelta(hours=1)
 
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
@@ -38,7 +38,7 @@ class AzureDiscoverRoles(object):
                 start_time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                 end_time.strftime('%Y-%m-%dT%H:%M:%SZ')
             ),
-            interval="P1D",
+            interval="PT1H",
             metricnames=metric,
             aggregation="Total",
             result_type="Metadata",
