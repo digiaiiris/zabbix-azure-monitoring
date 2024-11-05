@@ -60,13 +60,12 @@ class AzureDiscoverDimensions(object):
         for item in result.value:
             for timeserie in item.timeseries:
                 for data in timeserie.metadatavalues:
-                    # Don't add duplicates into dimensions list
                     name = data.__dict__.get("value")
-                    if name in dimensionsList:
+
+                    # Don't add duplicates into dimensions list
+                    if any(obj['{#DIMENSION}'] == name for obj in dimensionsList):
                         continue
-                    
-                    dimensionsList.append({"{#DIMENSION}": name, "{#ROLE_NAME}": name})
-                    
+                                      
                     # Get second dimensions (extents) for the discovered resource
                     if extent:
                         extent_filter = f"{dimension} eq '{name}' and {extent} eq '*'"
@@ -76,15 +75,13 @@ class AzureDiscoverDimensions(object):
                         for property in extent_data.value:
                             for serie in property.timeseries:
                                 for info in serie.metadatavalues:
-                                    # Don't add duplicates into dimensions list
-                                    name2 = info.__dict__.get("value")
-                                    if name2 in dimensionsList:
-                                        continue
+                                    name2 = info.__dict__.get("value")             
+                                    dimensionsList.append({"{#DIMENSION}": name, "{#EXTENT}": name2})
                     
-                                    dimensionsList.append({"{#DIMENSION}": name, "{#ROLE_NAME}": name, "{#EXTENT}": name2})
-                        
-                        # Remove objects without extent information
-                        dimensionsList = [element for element in dimensionsList if "{#EXTENT}" in element]
+                    # Add only first dimension names to list if no second dimension used
+                    else:
+                        dimensionsList.append({"{#DIMENSION}": name, "{#ROLE_NAME}": name})
+
 
         return dimensionsList
 
