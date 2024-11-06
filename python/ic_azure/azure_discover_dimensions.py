@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Python imports
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from argparse import ArgumentParser
 import json
 import sys
@@ -20,7 +20,7 @@ class AzureDiscoverDimensions(object):
     def get_data(self, resource, metric, queryfilter, metric_namespace):
 
         # Calculate start/end times
-        end_time = datetime.now() - timedelta(minutes=5)
+        end_time = datetime.now(timezone.utc) - timedelta(minutes=5)
         start_time = end_time - timedelta(hours=1)
 
         try:
@@ -47,13 +47,13 @@ class AzureDiscoverDimensions(object):
     def get_dimensions(self, resource, metric, dimension, extent, metric_namespace):
 
         # Declare variables
-        dimensionsList = []
+        dimensions_list = []
 
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
             resource = self.resources.get(resource)
         
-        filter = dimension + " eq '*'"
+        filter = f"{dimension} eq '*'"
         result = self.get_data(resource, metric, filter, metric_namespace)
 
         # Loop through metric data and retrieve instances
@@ -63,7 +63,7 @@ class AzureDiscoverDimensions(object):
                     name = data.__dict__.get("value")
 
                     # Don't add duplicates into dimensions list
-                    if any(obj['{#DIMENSION}'] == name for obj in dimensionsList):
+                    if any(obj['{#DIMENSION}'] == name for obj in dimensions_list):
                         continue
                                       
                     # Get second dimensions (extents) for the discovered resource
@@ -76,14 +76,14 @@ class AzureDiscoverDimensions(object):
                             for serie in property.timeseries:
                                 for info in serie.metadatavalues:
                                     name2 = info.__dict__.get("value")             
-                                    dimensionsList.append({"{#DIMENSION}": name, "{#EXTENT}": name2})
+                                    dimensions_list.append({"{#DIMENSION}": name, "{#EXTENT}": name2})
                     
                     # Add only first dimension names to list if no second dimension used
                     else:
-                        dimensionsList.append({"{#DIMENSION}": name, "{#ROLE_NAME}": name})
+                        dimensions_list.append({"{#DIMENSION}": name, "{#ROLE_NAME}": name})
 
 
-        return dimensionsList
+        return dimensions_list
 
 def main(args=None):
     parser = ArgumentParser(
