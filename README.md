@@ -19,6 +19,7 @@ This python module provides Zabbix monitoring support for Azure resources.
 ### Building a New Release
 
 - Update new version number to `setup.py`
+- Commit version number change to git
 - Run
 ```
 python3 -m venv ~/.virtualenv/zabbix-azure-monitoring-build
@@ -29,7 +30,7 @@ cd python
 make
 ```
 - Open explorer and pick up tar.gz file from python/dist folder
-- Create a new release in Github and upload tar.gz for it; tag it with the version number
+- Create a new release in Github and upload tar.gz for it; tag `master` with the version number
 
 ## Installation
 
