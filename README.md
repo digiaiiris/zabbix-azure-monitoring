@@ -37,7 +37,7 @@ make
 1. Install the python module using pip.
 
 ```
-pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.15/azure-monitoring-1.15.tar.gz
+pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.18/azure-monitoring-1.18.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.
