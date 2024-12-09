@@ -16,18 +16,34 @@ This python module provides Zabbix monitoring support for Azure resources.
 - pyOpenSSL (installed automatically as dependency)
 - requests (installed automatically as dependency)
 
+### VirtualEnv for development and building packages
+Creating and activating a VirtualEnv used for development and building new releases, activating said VirtualEnv and installing required dependencies.
+```
+mkdir -p ~/virtualenv
+python3 -m venv ~/virtualenv/zabbix-azure-monitoring
+source ~/virtualenv/zabbix-azure-monitoring/bin/activate
+pip install -r python/requirements.txt
+pip install coverage
+pip install pycodestyle
+```
+
+### Linter errors
+
+Checking linter errors from source code (you should strive to fix these):
+```
+source ~/virtualenv/zabbix-azure-monitoring/bin/activate
+make checkstyle
+```
+
 ### Building a New Release
 
 - Update new version number to `setup.py`
 - Commit version number change to git
 - Run
 ```
-python3 -m venv ~/.virtualenv/zabbix-azure-monitoring-build
-source ~/.virtualenv/zabbix-azure-monitoring-build/bin/activate
-pip install pycodestyle
-pip install coverage
-cd python
-make
+cd ~/.virtualenv/zabbix-azure-monitoring/python
+make clean
+make dist
 ```
 - Open explorer and pick up tar.gz file from python/dist folder
 - Create a new release in Github and upload tar.gz for it; tag `master` with the version number
