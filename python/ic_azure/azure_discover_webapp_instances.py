@@ -11,7 +11,8 @@ from ic_azure.azure_client import AzureClient
 def main(args=None):
     """Discover Web App scale-out instances.
     Uses the following REST API:
-    https://learn.microsoft.com/en-us/rest/api/appservice/web-apps/list-instance-identifiers?view=rest-appservice-2022-03-01"""
+    https://learn.microsoft.com/en-us/rest/api/appservice/web-apps/list-instance-identifiers?view=rest-appservice-2022-03-01  # noqa
+    """
 
     parser = ArgumentParser(
         description="Discover WebApp scale-out instances"
@@ -51,6 +52,7 @@ def main(args=None):
     # Output discovery
     discovery = {"data": discovery}
     print(json.dumps(discovery))
+
 
 if __name__ == "__main__":
     main()

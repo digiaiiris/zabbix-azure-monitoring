@@ -25,13 +25,13 @@ def main(args=None):
     )
 
     parser.add_argument("endpoint", choices=[k for k in endpoints], type=str,
-                        help="API to query for, application_insights, log_analytics or resource_graph.")
+                        help="API to query for, application_insights, log_analytics or " +
+                             "resource_graph.")
     parser.add_argument("config", type=str, help="Path to configuration file.")
     parser.add_argument("query", type=str, help="Query to run or key to match predefined query.")
     parser.add_argument("--id", type=str, help="Application ID for Application Insight query. " +
-                                             "Workspace ID for Log Analytics query. " +
-                                             "Empty for Resource Graph query. " +
-                                             "Key to match predefined IDs.")
+                        "Workspace ID for Log Analytics query. Empty for Resource Graph query. " +
+                        "Key to match predefined IDs.")
 
     args = parser.parse_args(args)
 
