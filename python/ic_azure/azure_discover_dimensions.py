@@ -9,6 +9,7 @@ import sys
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
+
 class AzureDiscoverDimensions(object):
     """Retrieve dimensions from Azure's resource"""
 
@@ -52,7 +53,7 @@ class AzureDiscoverDimensions(object):
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
             resource = self.resources.get(resource)
-        
+
         filter = f"{dimension} eq '*'"
         result = self.get_data(resource, metric, filter, metric_namespace)
 
@@ -65,25 +66,33 @@ class AzureDiscoverDimensions(object):
                     # Don't add duplicates into dimensions list
                     if any(obj['{#DIMENSION}'] == name for obj in dimensions_list):
                         continue
-                                      
+
                     # Get second dimensions (extents) for the discovered resource
                     if extent:
                         extent_filter = f"{dimension} eq '{name}' and {extent} eq '*'"
-                        extent_data = self.get_data(resource, metric, extent_filter, metric_namespace)
-                        
+                        extent_data = self.get_data(
+                            resource,
+                            metric,
+                            extent_filter,
+                            metric_namespace
+                        )
+
                         # Loop through metric data and retrieve instances
                         for property in extent_data.value:
                             for serie in property.timeseries:
                                 for info in serie.metadatavalues:
-                                    name2 = info.__dict__.get("value")             
-                                    dimensions_list.append({"{#DIMENSION}": name, "{#EXTENT}": name2})
-                    
+                                    name2 = info.__dict__.get("value")
+                                    dimensions_list.append({
+                                        "{#DIMENSION}": name,
+                                        "{#EXTENT}": name2
+                                    })
+
                     # Add only first dimension names to list if no second dimension used
                     else:
                         dimensions_list.append({"{#DIMENSION}": name, "{#ROLE_NAME}": name})
 
-
         return dimensions_list
+
 
 def main(args=None):
     parser = ArgumentParser(
@@ -94,7 +103,8 @@ def main(args=None):
     parser.add_argument("resource", type=str, help="Azure resource to use")
     parser.add_argument("metric", type=str, help="Metric to obtain")
     parser.add_argument("dimension", type=str, help="Primary dimension to use, i.e. node")
-    parser.add_argument("--extent", default=None, type=str, help="Second dimension (extent) to use, i.e. device")
+    parser.add_argument("--extent", default=None, type=str,
+                        help="Second dimension (extent) to use, i.e. device")
     parser.add_argument("-m", "--metric-namespace", default=None, type=str,
                         dest="metric_namespace",
                         help="Metric namespace for Azure resource query.")
@@ -108,7 +118,7 @@ def main(args=None):
     client = AzureDiscoverDimensions(azure_client)
 
     # Find dimensions using discovery
-    dimension_data= client.get_dimensions(
+    dimension_data = client.get_dimensions(
         args.resource,
         args.metric,
         args.dimension,
