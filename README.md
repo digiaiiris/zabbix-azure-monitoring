@@ -166,6 +166,8 @@ Item Syntax | Description | Response |
 azure.logic.apps[configuration_file, resource_group] | Discover Azure Logic App workflows | {#WORKFLOW_ID}, {#WORKFLOW_NAME}
 azure.logic.apps[configuration_file, resource_group, workflow_name] | Discover Azure Logic App workflow triggers | {#TRIGGER_ID}, {#TRIGGER_NAME}
 azure.logic.apps[configuration_file, resource_group, workflow_name, trigger_name ] | Discover Azure Logic App workflow trigger history | {#HISTORY_ID}, {#HISTORY_NAME}, {#HISTORY_STATUS}
+azure.metric.standard.succeed[configuration_file, resource_group, metric, statistic, timegrain, filter, status, (optional:timeshift)] | Logic Apps Standard workflow completed Runs/Triggers with given status | Count
+azure.metric.standard.other[configuration_file, resource_group, metric, statistic, timegrain, filter, status, (optional:timeshift)] | Logic Apps Standard workflow completed Runs/Triggers without given status | Count
 
 ### Azure Web App instance discovery
 
