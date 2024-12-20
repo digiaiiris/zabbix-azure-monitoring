@@ -45,7 +45,7 @@ class AzureMetric(object):
             raise ValueError("Timegrain interval is not valid.")
 
         # Calculate end time
-        end_time =  datetime.now(timezone.utc) - timedelta(minutes=timeshift)
+        end_time = datetime.now(timezone.utc) - timedelta(minutes=timeshift)
 
         # Retrieve time unit and calculate start time
         if result.group(2) == "D":
