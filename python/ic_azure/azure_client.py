@@ -67,7 +67,7 @@ class AzureClient:
         self.workspace_ids = {}  # Workspace IDs for Log Analytics queries
 
         # Check configurations for necessary fields
-        for item in ["client_id", "pemfile", "subscription_id", "tenant_id", "thumbprint"]:
+        for item in ["client_id", "pemfile", "subscription_id", "tenant_id"]:
             if not config[item]:
                 raise Exception("Configurations are missing {}.".format(item))
 

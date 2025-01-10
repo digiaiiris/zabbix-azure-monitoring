@@ -189,7 +189,6 @@ azure.webapp.discover.instances[configuration_file, resource_group, webapp_name]
     "subscription_id": "<subscription_id>",
     "pemfile": "<path_to_pem_file>",
     "tenant_id": "<tenant_id>",
-    "thumbprint": "<pem_file_thumbprint>",
     "application_ids": {
         "<application_key_1>": "<application_id_1>",
         "<application_key_2>": "<application_id_2>",
