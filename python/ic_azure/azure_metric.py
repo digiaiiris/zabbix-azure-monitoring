@@ -120,7 +120,7 @@ def main(args=None):
     parser.add_argument("-m", "--metric-namespace", default=None, type=str,
                         dest="metric_namespace",
                         help="Metric namespace for Azure query.")
-    parser.add_argument("--timeshift", default=300, type=int,
+    parser.add_argument("--timeshift", default=5, type=int,
                         help="Time shift for interval.")
 
     args = parser.parse_args(args)
