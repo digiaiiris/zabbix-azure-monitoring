@@ -29,9 +29,8 @@ setup(
         "azure-mgmt-monitor",
         "azure-mgmt-resource",
         "cryptography<37",  # Python 3.6 support is deprecated in version 37!
-        "msal",
+        "msal-extensions",
         "msrest",
-        "pyOpenSSL",
         "requests"
     ]
 )

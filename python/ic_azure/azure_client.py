@@ -3,14 +3,13 @@
 # Python imports
 import json as jsonlib
 import os
+import re
 import requests
 import sys
 
 # 3rd-party imports
-import msal
-import OpenSSL
-
-from azure.identity import CertificateCredential
+from azure.core.exceptions import ClientAuthenticationError
+from azure.identity import CertificateCredential, TokenCachePersistenceOptions
 from azure.mgmt.monitor import MonitorManagementClient
 from azure.mgmt.resource import ResourceManagementClient
 
@@ -56,7 +55,6 @@ class AzureClient:
 
         # Azure specific settings
         self.api = "https://management.core.windows.net/"
-        self.login_endpoint = "https://login.microsoftonline.com"
 
         # Set instance variables
         self.application_ids = {}  # Application IDs for Kusto queries.
@@ -112,43 +110,22 @@ class AzureClient:
         if not os.path.exists(config["pemfile"]):
             sys.exit("Certificate file does not exist.")
 
-        # Read certificate file
-        with open(config["pemfile"], "rb") as fh:
-            certificate_str = fh.read()
-
-        # Load certificate and generate thumbprint
-        certificate = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, certificate_str)
-        thumbprint = certificate.digest("sha1").decode("utf-8")
-
-        # Load private key
-        private_key = OpenSSL.crypto.load_privatekey(OpenSSL.crypto.FILETYPE_PEM, certificate_str)
-
-        # Create confidential client app instance
-        app = msal.ConfidentialClientApplication(
-            config["client_id"],
-            authority=f'{self.login_endpoint}/{config["tenant_id"]}',
-            client_credential={
-                "thumbprint": thumbprint.replace(":", ""),
-                "private_key": private_key.to_cryptography_key()
-            }
+        # One cache file per app registration keeps customers' tokens apart
+        cache_name = re.sub(
+            r"[^A-Za-z0-9-]",
+            "",
+            f"zabbix-azure-{config['tenant_id']}-{config['client_id']}"
         )
 
-        # Acquire token
-        response = app.acquire_token_for_client(
-            scopes=[f"{self.api}/.default"]
-        )
-
-        # Check if response has token
-        if "access_token" in response:
-            self.access_token = response["access_token"]
-        else:
-            sys.exit("Token missing from response.")
-
-        # Create credentials object
+        # Create credentials object with persistent token cache shared between processes
         self.credentials = CertificateCredential(
             config["tenant_id"],
             config["client_id"],
-            config["pemfile"]
+            config["pemfile"],
+            cache_persistence_options=TokenCachePersistenceOptions(
+                name=cache_name,
+                allow_unencrypted_storage=True  # No keyring available on headless agents
+            )
         )
 
     def client(self):
@@ -180,9 +157,15 @@ class AzureClient:
     def query(self, method="GET", json=None, url=""):
         """ Run query to Azure REST APIs. """
 
+        # Acquire token (served from cache when still valid)
+        try:
+            access_token = self.credentials.get_token(f"{self.api}/.default").token
+        except ClientAuthenticationError as ex:
+            sys.exit(f"Unable to acquire access token. {ex}")
+
         # Define request headers
         headers = {
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json"
         }
 
