@@ -1,7 +1,7 @@
 azure-identity
 azure-mgmt-monitor
 azure-mgmt-resource
-cryptography<37
+cryptography
 msal-extensions
 msrest
 requests

@@ -7,13 +7,14 @@ This python module provides Zabbix monitoring support for Azure resources.
 ## Requirements
 
 - Zabbix agent
+- Python 3.11+
 - pip3
 - azure-identity (installed automatically as dependency)
 - azure-mgmt-monitor (installed automatically as dependency)
 - azure-mgmt-resource (installed automatically as dependency)
-- msal (installed automatically as dependency)
+- cryptography (installed automatically as dependency)
+- msal-extensions (installed automatically as dependency)
 - msrest (installed automatically as dependency)
-- pyOpenSSL (installed automatically as dependency)
 - requests (installed automatically as dependency)
 
 ### VirtualEnv for development and building packages
@@ -53,7 +54,7 @@ make dist
 1. Install the python module using pip.
 
 ```
-pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.23/azure-monitoring-1.23.tar.gz
+pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/download/1.24/azure-monitoring-1.24.tar.gz
 ```
 
 2. Copy the [Zabbix agent configuration](etc/zabbix/zabbix_agent.d/ic_azure.conf) to /etc/zabbix/zabbix_agent.d directory.

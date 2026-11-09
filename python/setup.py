@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="azure-monitoring",
-    version="1.23",
+    version="1.24",
     author="Antti-Pekka Meronen",
     author_email="antti-pekka.meronen@digia.com",
     description="Monitoring scripts for Azure services",
@@ -24,11 +24,12 @@ setup(
             "azure_query=ic_azure.azure_query:main"
         ]
     },
+    python_requires=">=3.11",
     install_requires=[
         "azure-identity",
         "azure-mgmt-monitor",
         "azure-mgmt-resource",
-        "cryptography<37",  # Python 3.6 support is deprecated in version 37!
+        "cryptography",
         "msal-extensions",
         "msrest",
         "requests"
