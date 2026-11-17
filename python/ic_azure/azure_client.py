@@ -11,7 +11,7 @@ import sys
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import CertificateCredential, TokenCachePersistenceOptions
 from azure.mgmt.monitor import MonitorManagementClient
-from azure.mgmt.resource import ResourceManagementClient
+from azure.mgmt.resource.resources import ResourceManagementClient
 
 
 class AzureClient:
