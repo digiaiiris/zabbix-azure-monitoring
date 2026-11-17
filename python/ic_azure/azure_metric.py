@@ -6,6 +6,9 @@ from argparse import ArgumentParser
 import re
 import sys
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure imports
 from msrest.exceptions import AuthenticationError, ClientRequestError, \
     DeserializationError, HttpOperationError, SerializationError, \
@@ -60,6 +63,7 @@ class AzureMetric(object):
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
             resource = self.resources.get(resource)
+        azure_logging.set_resource(resource)
 
         # Retrieve metric data
         try:
@@ -103,6 +107,7 @@ class AzureMetric(object):
         return ret_val
 
 
+@azure_logging.log_run("azure_metric")
 def main(args=None):
     parser = ArgumentParser(
         description="Retrieve metrics from Azure's resources"
@@ -124,6 +129,10 @@ def main(args=None):
                         help="Time shift for interval.")
 
     args = parser.parse_args(args)
+    azure_logging.set_context(
+        resource=args.resource, metric=args.metric, stat=args.statistic,
+        grain=args.timegrain, namespace=args.metric_namespace, filter=args.filter
+    )
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
@@ -144,11 +153,9 @@ def main(args=None):
     # If value is empty or we didn't get a value, print zero. Otherwise print
     # the retrieved value.
     if not value:
-        print(0)
-    elif value == "":
-        print(0)
+        azure_logging.emit("0")
     else:
-        print(value)
+        azure_logging.emit(str(value))
 
 
 if __name__ == "__main__":

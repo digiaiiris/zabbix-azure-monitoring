@@ -6,6 +6,10 @@ import os
 import re
 import requests
 import sys
+import time
+
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
 
 # 3rd-party imports
 from azure.core.exceptions import ClientAuthenticationError
@@ -84,6 +88,7 @@ class AzureClient:
 
         # Retrieve necessary configurations
         self.subscription_id = config["subscription_id"]
+        azure_logging.set_context(sub=self.subscription_id)
 
         # Azure API URL for Kusto or Log Analytics queries
         if api:
@@ -171,6 +176,7 @@ class AzureClient:
 
         # Declare variables
         response = None
+        start = time.monotonic()
 
         # Try to run request
         try:
@@ -211,9 +217,18 @@ class AzureClient:
         except Exception as ex:
             sys.exit(f"Unknown exception occured: {ex}")
 
+        azure_logging.logger.debug(
+            "%s %s -> %s in %.2fs, %d bytes", method, url, response.status_code,
+            time.monotonic() - start, len(response.content)
+        )
+
         # Check status code
         if hasattr(response, "status_code"):
             if response.status_code != 200:
+                azure_logging.logger.warning(
+                    "%s %s -> HTTP %s in %.2fs", method, url, response.status_code,
+                    time.monotonic() - start
+                )
                 raise Exception("Status code error: {}, status code: {}".format(
                     response.text,
                     response.status_code

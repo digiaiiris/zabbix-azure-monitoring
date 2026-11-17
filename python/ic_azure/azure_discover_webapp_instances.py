@@ -4,10 +4,14 @@
 import json
 from argparse import ArgumentParser
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
 
+@azure_logging.log_run("azure_discover_webapp_instances")
 def main(args=None):
     """Discover Web App scale-out instances.
     Uses the following REST API:
@@ -23,6 +27,7 @@ def main(args=None):
                         help="Resource group name.")
     parser.add_argument("webapp", type=str, help="Web App name")
     args = parser.parse_args(args)
+    azure_logging.set_context(rg=args.resource_group, webapp=args.webapp)
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
@@ -50,8 +55,7 @@ def main(args=None):
         })
 
     # Output discovery
-    discovery = {"data": discovery}
-    print(json.dumps(discovery))
+    azure_logging.emit(json.dumps({"data": discovery}), items=len(discovery))
 
 
 if __name__ == "__main__":

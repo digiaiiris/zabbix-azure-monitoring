@@ -4,10 +4,14 @@
 import json
 from argparse import ArgumentParser
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
 
+@azure_logging.log_run("azure_logic_apps")
 def main(args=None):
     parser = ArgumentParser(
         description="Discover workflows from Azure Logic Apps."
@@ -24,6 +28,9 @@ def main(args=None):
                         type=str, help="Azure REST API version.")
 
     args = parser.parse_args(args)
+    azure_logging.set_context(
+        rg=args.resource_group, workflow=args.workflow, trigger=args.trigger
+    )
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
@@ -75,8 +82,7 @@ def main(args=None):
             })
 
     # Output discovery
-    discovery = {"data": discovery}
-    print(json.dumps(discovery))
+    azure_logging.emit(json.dumps({"data": discovery}), items=len(discovery))
 
 
 if __name__ == "__main__":

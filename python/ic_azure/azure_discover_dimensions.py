@@ -6,6 +6,9 @@ from argparse import ArgumentParser
 import json
 import sys
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
@@ -53,6 +56,7 @@ class AzureDiscoverDimensions(object):
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
             resource = self.resources.get(resource)
+        azure_logging.set_resource(resource)
 
         filter = f"{dimension} eq '*'"
         result = self.get_data(resource, metric, filter, metric_namespace)
@@ -94,6 +98,7 @@ class AzureDiscoverDimensions(object):
         return dimensions_list
 
 
+@azure_logging.log_run("azure_discover_dimensions")
 def main(args=None):
     parser = ArgumentParser(
         description="Retrieve dimensions from Azure's resource"
@@ -110,6 +115,10 @@ def main(args=None):
                         help="Metric namespace for Azure resource query.")
 
     args = parser.parse_args(args)
+    azure_logging.set_context(
+        resource=args.resource, metric=args.metric, dimension=args.dimension,
+        extent=args.extent, namespace=args.metric_namespace
+    )
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
@@ -128,7 +137,7 @@ def main(args=None):
 
     # Output dimensions
     discovery = {"data": dimension_data}
-    print(json.dumps(discovery))
+    azure_logging.emit(json.dumps(discovery), items=len(dimension_data))
 
 
 if __name__ == "__main__":

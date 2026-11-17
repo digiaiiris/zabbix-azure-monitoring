@@ -4,6 +4,9 @@
 import json
 from argparse import ArgumentParser
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
@@ -46,6 +49,7 @@ class AzureDiscoverResources(object):
         return resources
 
 
+@azure_logging.log_run("azure_discover_resources")
 def main(args=None):
     parser = ArgumentParser(
         description="Discover resources from Azure's services"
@@ -65,7 +69,7 @@ def main(args=None):
     resources = resource_client.find_resources()
 
     # Output resources
-    print(json.dumps({"data": resources}))
+    azure_logging.emit(json.dumps({"data": resources}), items=len(resources))
 
 
 if __name__ == "__main__":

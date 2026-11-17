@@ -4,6 +4,9 @@
 import json
 from argparse import ArgumentParser
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
@@ -19,6 +22,7 @@ url = None
 workspace_id = None
 
 
+@azure_logging.log_run("azure_query")
 def main(args=None):
     parser = ArgumentParser(
         description="Run Kusto queries to Azure's REST APIs"
@@ -34,6 +38,7 @@ def main(args=None):
                         "Key to match predefined IDs.")
 
     args = parser.parse_args(args)
+    azure_logging.set_context(endpoint=args.endpoint, id=args.id, query=args.query)
 
     # Instantiate Azure Kusto-client
     azure_client = AzureClient(args, api=endpoints[args.endpoint], queries=True)
@@ -86,7 +91,13 @@ def main(args=None):
     )
 
     # Print response
-    print(json.dumps(response))
+    rows = None
+    if isinstance(response, dict):
+        if isinstance(response.get("data"), list):  # Resource Graph
+            rows = len(response["data"])
+        elif isinstance(response.get("tables"), list):  # Kusto
+            rows = sum(len(t.get("rows", [])) for t in response["tables"])
+    azure_logging.emit(json.dumps(response), items=rows)
 
 
 if __name__ == "__main__":
