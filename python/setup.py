@@ -6,7 +6,7 @@ from setuptools import setup
 
 setup(
     name="azure-monitoring",
-    version="1.24",
+    version="1.25",
     author="Antti-Pekka Meronen",
     author_email="antti-pekka.meronen@digia.com",
     description="Monitoring scripts for Azure services",
