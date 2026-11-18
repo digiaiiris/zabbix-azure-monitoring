@@ -29,7 +29,7 @@ def main(args=None):
 
     args = parser.parse_args(args)
     azure_logging.set_context(
-        rg=args.resource_group, workflow=args.workflow, trigger=args.trigger
+        config=args.config, rg=args.resource_group, workflow=args.workflow, trigger=args.trigger
     )
 
     # Instantiate Azure client

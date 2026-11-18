@@ -43,6 +43,7 @@ class TestAzureLogging(unittest.TestCase):
     def test_success_logs_context_and_output_size_without_touching_stdout(self):
         result = run_script(
             """
+            azure_logging.set_context(config=sys.argv[1])
             azure_logging.set_resource(
                 "/subscriptions/sub-1/resourceGroups/RG-PROD/providers/"
                 "Microsoft.Sql/servers/sql-01/databases/hw")
@@ -92,6 +93,18 @@ class TestAzureLogging(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertEqual(result.stdout, "42\n")
         self.assertEqual(result.stderr, "")
+
+    def test_config_is_logged_when_options_come_before_positionals(self):
+        # README's manual-run order: azure_query --id <id> <endpoint> <config> <query>
+        env = dict(os.environ, AZURE_MONITORING_LOG_DIR=self.log_dir, PYTHONPATH=PYTHON_DIR)
+        subprocess.run(
+            [sys.executable, "-m", "ic_azure.azure_query", "--id", "app1",
+             "application_insights", "/nonexistent/cfg.json", "q"],
+            env=env, capture_output=True, text=True
+        )
+        with open(os.path.join(self.log_dir, "azure_query.log")) as fh:
+            log = fh.read()
+        self.assertIn("[config=/nonexistent/cfg.json endpoint=application_insights", log)
 
 
 if __name__ == "__main__":

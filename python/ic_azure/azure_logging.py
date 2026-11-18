@@ -144,7 +144,8 @@ def log_run(script_name):
         @functools.wraps(main)
         def wrapper(*args, **kwargs):
             setup(script_name)
-            set_context(config=_config_from_argv(script_name))
+            # Reserve the first position; scripts fill it from args.config after parsing
+            set_context(config=None)
             start = time.monotonic()
             # A "Started" line without a result for the same pid means the agent
             # killed the process (timeout)
@@ -166,12 +167,3 @@ def log_run(script_name):
             return result
         return wrapper
     return decorator
-
-
-def _config_from_argv(script_name):
-    """Config file identifies the customer; it is set before argument parsing so
-    that argument errors are attributed too."""
-
-    positional = [a for a in sys.argv[1:] if not a.startswith("-")]
-    index = 1 if script_name == "azure_query" else 0
-    return positional[index] if len(positional) > index else None

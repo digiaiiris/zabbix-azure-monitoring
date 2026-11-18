@@ -38,7 +38,9 @@ def main(args=None):
                         "Key to match predefined IDs.")
 
     args = parser.parse_args(args)
-    azure_logging.set_context(endpoint=args.endpoint, id=args.id, query=args.query)
+    azure_logging.set_context(
+        config=args.config, endpoint=args.endpoint, id=args.id, query=args.query
+    )
 
     # Instantiate Azure Kusto-client
     azure_client = AzureClient(args, api=endpoints[args.endpoint], queries=True)

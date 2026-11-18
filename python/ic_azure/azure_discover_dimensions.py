@@ -116,7 +116,7 @@ def main(args=None):
 
     args = parser.parse_args(args)
     azure_logging.set_context(
-        resource=args.resource, metric=args.metric, dimension=args.dimension,
+        config=args.config, resource=args.resource, metric=args.metric, dimension=args.dimension,
         extent=args.extent, namespace=args.metric_namespace
     )
 

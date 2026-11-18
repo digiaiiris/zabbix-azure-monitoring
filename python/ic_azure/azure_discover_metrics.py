@@ -50,7 +50,9 @@ def main(args=None):
                         help="Metric namespace for Azure resource query.")
 
     args = parser.parse_args(args)
-    azure_logging.set_context(resource=args.resource, namespace=args.metric_namespace)
+    azure_logging.set_context(
+        config=args.config, resource=args.resource, namespace=args.metric_namespace
+    )
 
     # Instantiate Azure client
     azure_client = AzureClient(args)

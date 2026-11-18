@@ -58,6 +58,7 @@ def main(args=None):
     parser.add_argument("config", type=str, help="Path to configuration file")
 
     args = parser.parse_args(args)
+    azure_logging.set_context(config=args.config)
 
     # Instantiate Azure resource client
     azure_resource_client = AzureClient(args)

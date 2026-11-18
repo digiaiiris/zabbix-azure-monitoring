@@ -27,7 +27,9 @@ def main(args=None):
                         help="Resource group name.")
     parser.add_argument("webapp", type=str, help="Web App name")
     args = parser.parse_args(args)
-    azure_logging.set_context(rg=args.resource_group, webapp=args.webapp)
+    azure_logging.set_context(
+        config=args.config, rg=args.resource_group, webapp=args.webapp
+    )
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
