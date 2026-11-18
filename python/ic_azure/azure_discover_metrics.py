@@ -4,6 +4,9 @@
 import json
 from argparse import ArgumentParser
 
+# Must be imported before the Azure SDK to measure import time
+from ic_azure import azure_logging
+
 # Azure client imports
 from ic_azure.azure_client import AzureClient
 
@@ -22,6 +25,7 @@ class AzureDiscoverMetrics(object):
         # Read resource from config using key
         if not resource.startswith("/subscriptions"):
             resource = self.resources.get(resource)
+        azure_logging.set_resource(resource)
 
         # List metrics from resource
         for metric in self._client.metric_definitions.list(
@@ -33,6 +37,7 @@ class AzureDiscoverMetrics(object):
         return servicesList
 
 
+@azure_logging.log_run("azure_discover_metrics")
 def main(args=None):
     parser = ArgumentParser(
         description="Discover metrics from Azure's resources."
@@ -45,6 +50,9 @@ def main(args=None):
                         help="Metric namespace for Azure resource query.")
 
     args = parser.parse_args(args)
+    azure_logging.set_context(
+        config=args.config, resource=args.resource, namespace=args.metric_namespace
+    )
 
     # Instantiate Azure client
     azure_client = AzureClient(args)
@@ -68,7 +76,7 @@ def main(args=None):
 
     # Output metric services
     discovery = {"data": names}
-    print(json.dumps(discovery))
+    azure_logging.emit(json.dumps(discovery), items=len(names))
 
 
 if __name__ == "__main__":

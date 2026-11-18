@@ -62,6 +62,42 @@ pip3 install https://github.com/digiaiiris/zabbix-azure-monitoring/releases/down
 3. Restart the Zabbix agent.
 
 
+### Logging
+
+The scripts run as Zabbix passive items, so stdout is the item value. Diagnostics are written to
+`/var/log/zabbix/scripts/zabbix_azure_monitoring/<script_name>.log` instead. The directory must be
+writable by the agent user; if it is not, logging is silently disabled.
+
+```
+mkdir -p /var/log/zabbix/scripts/zabbix_azure_monitoring
+chown zabbix:zabbix /var/log/zabbix/scripts/zabbix_azure_monitoring
+```
+
+Each line contains the customer context (config file, subscription, resource group, resource,
+metric) and, when finished, run time, Python import time, CPU time, output size and number of
+discovered items. Errors and exceptions are logged with tracebacks, and output exceeding the Zabbix
+agent's 512 KB limit is logged as a warning. A `Started` line with no result line for the same
+`pid` means the agent killed the process (timeout).
+
+Environment variables (set e.g. in the Zabbix agent's systemd unit):
+
+- `AZURE_MONITORING_LOG_DIR`: log directory
+- `AZURE_MONITORING_LOG_LEVEL`: `DEBUG`, `INFO` (default), `WARNING` or `ERROR`; `DEBUG` adds
+  REST request timings and Azure SDK logging
+
+Example `/etc/logrotate.d/zabbix-azure-monitoring`:
+
+```
+/var/log/zabbix/scripts/zabbix_azure_monitoring/*.log {
+    daily
+    rotate 7
+    compress
+    missingok
+    notifempty
+}
+```
+
+
 ---
 
 
